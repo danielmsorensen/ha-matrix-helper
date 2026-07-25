@@ -1,0 +1,24 @@
+"""Constants for matrix_helper."""
+
+from __future__ import annotations
+
+from logging import Logger, getLogger
+
+LOGGER: Logger = getLogger(__package__)
+
+DOMAIN = "matrix_helper"
+
+CONF_ROWS = "rows"
+CONF_COLUMNS = "columns"
+
+ATTR_ROWS = "rows"
+ATTR_COLUMNS = "columns"
+ATTR_DATA = "data"
+
+ATTR_ROW = "row"
+ATTR_COLUMN = "column"
+ATTR_VALUE = "value"
+ATTR_VALUES = "values"
+
+SERVICE_SET_CELL = "set_cell"
+SERVICE_SET_ROW = "set_row"

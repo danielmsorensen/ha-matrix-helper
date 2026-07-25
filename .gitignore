@@ -12,6 +12,9 @@ __pycache__
 coverage.xml
 .ruff_cache
 
+# local-only planning/process docs (superpowers skill artifacts)
+.superpowers/
+
 
 # Home Assistant configuration
 config/*

@@ -1,0 +1,11 @@
+{
+  "domain": "matrix_helper",
+  "name": "Matrix Helper",
+  "codeowners": ["@danielmsorensen"],
+  "config_flow": true,
+  "documentation": "https://github.com/danielmsorensen/ha-matrix-helper",
+  "integration_type": "helper",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/danielmsorensen/ha-matrix-helper/issues",
+  "version": "0.1.0"
+}

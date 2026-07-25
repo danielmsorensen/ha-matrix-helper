@@ -1,0 +1,60 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "name": "Name",
+          "rows": "Rows",
+          "columns": "Columns"
+        },
+        "data_description": {
+          "name": "A name for this matrix, e.g. \"Climate Profiles\".",
+          "rows": "Comma-separated row labels, e.g. \"Comfort, Eco, Sleep\".",
+          "columns": "Comma-separated column labels, e.g. \"Living Room, Office, Bedroom\"."
+        }
+      }
+    },
+    "error": {
+      "rows_required": "At least one row is required.",
+      "columns_required": "At least one column is required.",
+      "duplicate_rows": "Row labels must be unique (case-insensitive).",
+      "duplicate_columns": "Column labels must be unique (case-insensitive)."
+    },
+    "abort": {
+      "already_configured": "A matrix with this name already exists."
+    }
+  },
+  "exceptions": {
+    "unknown_row": {
+      "message": "Unknown row \"{row}\". Valid rows: {valid_rows}."
+    },
+    "unknown_column": {
+      "message": "Unknown column \"{column}\". Valid columns: {valid_columns}."
+    }
+  },
+  "services": {
+    "set_cell": {
+      "name": "Set cell",
+      "description": "Set (or clear) a single cell in a matrix.",
+      "fields": {
+        "row": { "name": "Row", "description": "The row key to update." },
+        "column": { "name": "Column", "description": "The column key to update." },
+        "value": {
+          "name": "Value",
+          "description": "The new value. Omit to clear the cell."
+        }
+      }
+    },
+    "set_row": {
+      "name": "Set row",
+      "description": "Update one or more cells in a row.",
+      "fields": {
+        "row": { "name": "Row", "description": "The row key to update." },
+        "values": {
+          "name": "Values",
+          "description": "A mapping of column key to new value (or null to clear)."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+set_cell:
+  target:
+    entity:
+      domain: matrix_helper
+  fields:
+    row:
+      required: true
+      example: "comfort"
+      selector:
+        text:
+    column:
+      required: true
+      example: "living_room"
+      selector:
+        text:
+    value:
+      required: false
+      example: 21.0
+      selector:
+        number:
+          mode: box
+
+set_row:
+  target:
+    entity:
+      domain: matrix_helper
+  fields:
+    row:
+      required: true
+      example: "comfort"
+      selector:
+        text:
+    values:
+      required: true
+      example: '{"living_room": 21.0, "office": null}'
+      selector:
+        object:
