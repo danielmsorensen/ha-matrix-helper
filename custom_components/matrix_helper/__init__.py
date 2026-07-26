@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import voluptuous as vol
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_component import EntityComponent
 
 from .const import (
@@ -58,6 +59,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     entity = MatrixHelperEntity(entry)
     await component.async_add_entities([entity])
     entry.runtime_data = entity
+
+    # component.async_add_entities() doesn't go through a per-entry
+    # EntityPlatform (there's no separate platform module to forward to -
+    # matrix_helper's entities are its own domain), so the registry entry
+    # it creates has no config_entry_id. Link it explicitly so the
+    # frontend can associate the entity with its config entry (otherwise
+    # Settings > Helpers shows the config entry and the entity as two
+    # separate, unlinked rows).
+    registry = er.async_get(hass)
+    if entity.entity_id in registry.entities:
+        registry.async_update_entity(entity.entity_id, config_entry_id=entry.entry_id)
+
     return True
 
 
