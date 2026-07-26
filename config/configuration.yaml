@@ -1,5 +1,16 @@
+# default_config: pulls in a huge bundle (bluetooth, cloud, mobile_app, usb,
+# ...) not needed for developing this integration. Use a minimal set
+# instead - frontend for the UI, config for Settings/Helpers/config flows:
 # https://www.home-assistant.io/integrations/default_config/
-default_config:
+frontend:
+config:
+# Note: `config:` pulls in assist_pipeline/assist_satellite as a
+# dependency regardless (HA core always attempts to set these up). Their
+# native deps (pymicro_vad, pyspeex_noise) only ship as source and need a
+# C++ compiler. If your dev environment doesn't have one, install a stub
+# package for each (a bare module + matching dist-info metadata reporting
+# the exact pinned version assist_pipeline's manifest requires) rather than
+# a real build - this integration never uses voice-assist functionality.
 
 # https://www.home-assistant.io/integrations/homeassistant/
 homeassistant:
