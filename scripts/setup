@@ -8,3 +8,6 @@ cd "$(dirname "$0")/.."
 # before the rest of the dependencies are installed.
 python3 -m pip install --requirement requirements_common.txt
 python3 -m pip install --requirement requirements_dev.txt
+
+# Install the Lovelace card's frontend dependencies.
+(cd frontend && npm install)
