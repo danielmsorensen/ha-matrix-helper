@@ -35,3 +35,19 @@ set_row:
       example: '{"living_room": 21.0, "office": null}'
       selector:
         object:
+
+set_column:
+  target:
+    entity:
+      domain: matrix_helper
+  fields:
+    column:
+      required: true
+      example: "living_room"
+      selector:
+        text:
+    values:
+      required: true
+      example: '{"comfort": 21.0, "eco": null}'
+      selector:
+        object:

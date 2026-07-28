@@ -22,3 +22,4 @@ ATTR_VALUES = "values"
 
 SERVICE_SET_CELL = "set_cell"
 SERVICE_SET_ROW = "set_row"
+SERVICE_SET_COLUMN = "set_column"

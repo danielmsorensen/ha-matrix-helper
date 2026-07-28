@@ -24,6 +24,26 @@
       "already_configured": "A matrix with this name already exists."
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "rows": "Rows",
+          "columns": "Columns"
+        },
+        "data_description": {
+          "rows": "Comma-separated row labels, e.g. \"Comfort, Eco, Sleep\". A label not in this list is removed (its data is discarded); a new label starts at null.",
+          "columns": "Comma-separated column labels, e.g. \"Living Room, Office, Bedroom\". A label not in this list is removed (its data is discarded); a new label starts at null."
+        }
+      }
+    },
+    "error": {
+      "rows_required": "At least one row is required.",
+      "columns_required": "At least one column is required.",
+      "duplicate_rows": "Row labels must be unique (case-insensitive).",
+      "duplicate_columns": "Column labels must be unique (case-insensitive)."
+    }
+  },
   "exceptions": {
     "unknown_row": {
       "message": "Unknown row \"{row}\". Valid rows: {valid_rows}."
@@ -53,6 +73,17 @@
         "values": {
           "name": "Values",
           "description": "A mapping of column key to new value (or null to clear)."
+        }
+      }
+    },
+    "set_column": {
+      "name": "Set column",
+      "description": "Update one or more cells in a column.",
+      "fields": {
+        "column": { "name": "Column", "description": "The column key to update." },
+        "values": {
+          "name": "Values",
+          "description": "A mapping of row key to new value (or null to clear)."
         }
       }
     }

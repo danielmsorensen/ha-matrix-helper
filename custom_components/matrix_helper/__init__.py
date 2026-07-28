@@ -16,6 +16,7 @@ from .const import (
     DOMAIN,
     LOGGER,
     SERVICE_SET_CELL,
+    SERVICE_SET_COLUMN,
     SERVICE_SET_ROW,
 )
 from .matrix import MatrixHelperEntity
@@ -36,6 +37,11 @@ SET_ROW_SCHEMA = {
     vol.Required(ATTR_VALUES): {str: vol.Any(vol.Coerce(float), None)},
 }
 
+SET_COLUMN_SCHEMA = {
+    vol.Required(ATTR_COLUMN): str,
+    vol.Required(ATTR_VALUES): {str: vol.Any(vol.Coerce(float), None)},
+}
+
 
 async def async_setup(hass: HomeAssistant, _config: ConfigType) -> bool:
     """Set up the shared EntityComponent and services for this domain."""
@@ -49,6 +55,9 @@ async def async_setup(hass: HomeAssistant, _config: ConfigType) -> bool:
     )
     component.async_register_entity_service(
         SERVICE_SET_ROW, SET_ROW_SCHEMA, "async_set_row"
+    )
+    component.async_register_entity_service(
+        SERVICE_SET_COLUMN, SET_COLUMN_SCHEMA, "async_set_column"
     )
     return True
 

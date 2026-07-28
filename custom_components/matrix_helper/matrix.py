@@ -26,9 +26,9 @@ class MatrixHelperEntity(RestoreEntity):
         self._entry = entry
         self._attr_unique_id = entry.entry_id
         self._attr_name = entry.data[CONF_NAME]
-        self.rows: list[str] = [slugify(row) for row in entry.data[CONF_ROWS]]
+        self.rows: list[str] = [slugify(row) for row in entry.options[CONF_ROWS]]
         self.columns: list[str] = [
-            slugify(column) for column in entry.data[CONF_COLUMNS]
+            slugify(column) for column in entry.options[CONF_COLUMNS]
         ]
         self._data: dict[str, dict[str, float | None]] = {
             row: dict.fromkeys(self.columns) for row in self.rows
@@ -90,6 +90,18 @@ class MatrixHelperEntity(RestoreEntity):
         for column in values:
             self._raise_if_unknown_column(column)
         for column, value in values.items():
+            self._data[row][column] = value
+        self._touch()
+        self.async_write_ha_state()
+
+    async def async_set_column(
+        self, column: str, values: dict[str, float | None]
+    ) -> None:
+        """Update a column, changing only the given rows."""
+        self._raise_if_unknown_column(column)
+        for row in values:
+            self._raise_if_unknown_row(row)
+        for row, value in values.items():
             self._data[row][column] = value
         self._touch()
         self.async_write_ha_state()
