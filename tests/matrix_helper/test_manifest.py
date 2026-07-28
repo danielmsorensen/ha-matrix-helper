@@ -16,7 +16,7 @@ def test_manifest_domain_and_metadata():
     assert manifest["config_flow"] is True
     assert manifest["integration_type"] == "helper"
     assert manifest["iot_class"] == "calculated"
-    assert manifest["version"] == "0.1.0"
+    assert manifest["version"] == "1.0.0"
     assert manifest["codeowners"] == ["@danielmsorensen"]
     assert manifest["documentation"].startswith("https://github.com/")
     assert manifest["issue_tracker"].startswith("https://github.com/")

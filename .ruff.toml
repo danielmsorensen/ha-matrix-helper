@@ -32,3 +32,6 @@ max-complexity = 25
     "PLR2004", # magic values are expected/clear in test assertions
     "ARG001",  # fixture params requested only for their side effect look unused
 ]
+"scripts/*.py" = [
+    "INP001", # one-off dev scripts, not an importable package
+]
