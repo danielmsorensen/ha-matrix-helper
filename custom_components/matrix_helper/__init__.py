@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import voluptuous as vol
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_component import EntityComponent
 
@@ -41,6 +42,10 @@ SET_COLUMN_SCHEMA = {
     vol.Required(ATTR_COLUMN): str,
     vol.Required(ATTR_VALUES): {str: vol.Any(vol.Coerce(float), None)},
 }
+
+# This integration is config-entry-only: there is no YAML configuration.yaml
+# setup path, only the config/options flows.
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
 async def async_setup(hass: HomeAssistant, _config: ConfigType) -> bool:

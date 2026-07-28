@@ -2,6 +2,7 @@
   "config": {
     "step": {
       "user": {
+        "description": "Create a new matrix: give it a name, then list its rows and columns as comma-separated labels.",
         "data": {
           "name": "Name",
           "rows": "Rows",
@@ -27,6 +28,7 @@
   "options": {
     "step": {
       "init": {
+        "description": "Edit this matrix's rows and columns. A label not in the new list is removed (its data is discarded); a new label starts at null.",
         "data": {
           "rows": "Rows",
           "columns": "Columns"
