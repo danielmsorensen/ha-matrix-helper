@@ -99,8 +99,13 @@ class MatrixHelperConfigFlow(SchemaConfigFlowHandler, domain=DOMAIN):
 
     config_flow = CONFIG_FLOW
     options_flow = OPTIONS_FLOW
+    # options_flow_reloads=True makes SchemaConfigFlowHandler use
+    # SchemaOptionsFlowHandlerWithReload, which raises ValueError at flow-finish
+    # time if this integration also registers its own config-entry update
+    # listener (hass.config_entries.async_add_update_listener /
+    # entry.add_update_listener) — never add one.
     options_flow_reloads = True
 
     def async_config_entry_title(self, options: Mapping[str, Any]) -> str:
         """Return config entry title."""
-        return str(options[CONF_NAME]).strip()
+        return options[CONF_NAME]
