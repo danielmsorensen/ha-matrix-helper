@@ -20,6 +20,7 @@ class MatrixHelperEntity(RestoreEntity):
     """A single rows x columns matrix of float-or-null cells."""
 
     _attr_should_poll = False
+    _attr_icon = "mdi:matrix"
 
     def __init__(self, entry: ConfigEntry) -> None:
         """Build the matrix schema and blank cell data from a config entry."""

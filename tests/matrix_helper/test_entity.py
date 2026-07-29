@@ -15,6 +15,7 @@ def test_entity_initial_state_and_attributes(matrix_config_entry):
 
     assert entity.unique_id == "test_entry_id"
     assert entity.name == "Climate Profiles"
+    assert entity.icon == "mdi:matrix"
     assert entity.rows == ["comfort", "eco", "sleep"]
     assert entity.columns == ["living_room", "office"]
 

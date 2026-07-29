@@ -2,3 +2,4 @@
 colorlog==6.10.1
 homeassistant==2026.6.4
 pytest-homeassistant-custom-component
+cairosvg  # scripts/generate_brand_icon.py
