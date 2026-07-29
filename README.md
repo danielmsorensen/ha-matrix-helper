@@ -24,10 +24,13 @@ plus row/column editing after creation and a Lovelace card for daily cell edits.
       is treated as removing the old one and adding a new one (its data is discarded),
       not as preserving the row/column under a new name.
 - [x] Lovelace card (`matrix-helper-card`) — an inline-editable grid for quick cell
-      edits, addable via the dashboard's "Add Card" picker or YAML
-      (`type: custom:matrix-helper-card`). Row/column headers are a best-effort
-      reconstruction of the original label (`living_room` → "Living Room"), not the
-      exact original text, since the backend only stores the slug.
+      edits, addable via the dashboard's "Add Card" picker (including as a suggested
+      card for the entity) or YAML (`type: custom:matrix-helper-card`). Configurable
+      tap/hold/double-tap actions (None, More info, Navigate, URL — More info by
+      default on tap), matching how standard Lovelace cards behave. Row/column headers
+      are a best-effort reconstruction of the original label (`living_room` →
+      "Living Room"), not the exact original text, since the backend only stores the
+      slug.
 
 ## Development
 
