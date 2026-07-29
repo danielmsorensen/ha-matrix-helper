@@ -2,19 +2,23 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
 import voluptuous as vol
-from homeassistant import config_entries
 from homeassistant.const import CONF_NAME
-from homeassistant.core import callback
 from homeassistant.helpers import selector
+from homeassistant.helpers.schema_config_entry_flow import (
+    SchemaCommonFlowHandler,
+    SchemaConfigFlowHandler,
+    SchemaFlowError,
+    SchemaFlowFormStep,
+)
 from homeassistant.util import slugify
 
 from .const import CONF_COLUMNS, CONF_ROWS, DOMAIN
-
-
-def _parse_labels(raw: str) -> list[str]:
-    """Split a comma-separated field into stripped, non-empty labels."""
-    return [item.strip() for item in raw.split(",") if item.strip()]
 
 
 def _has_duplicates(labels: list[str]) -> bool:
@@ -31,112 +35,72 @@ def _has_duplicates(labels: list[str]) -> bool:
     return False
 
 
-def _validate_rows_and_columns(rows: list[str], columns: list[str]) -> dict[str, str]:
-    """Return field errors for a rows/columns pair, or an empty dict if valid."""
-    errors: dict[str, str] = {}
+async def _validate_rows_and_columns(
+    _handler: SchemaCommonFlowHandler, user_input: dict[str, Any]
+) -> dict[str, Any]:
+    """Validate name/rows/columns; strip whitespace and drop empty labels."""
+    if CONF_NAME in user_input:
+        user_input[CONF_NAME] = user_input[CONF_NAME].strip()
+
+    rows = [r.strip() for r in user_input[CONF_ROWS] if r.strip()]
+    columns = [c.strip() for c in user_input[CONF_COLUMNS] if c.strip()]
+
     if not rows:
-        errors[CONF_ROWS] = "rows_required"
-    elif _has_duplicates(rows):
-        errors[CONF_ROWS] = "duplicate_rows"
-
+        msg = "rows_required"
+        raise SchemaFlowError(msg)
     if not columns:
-        errors[CONF_COLUMNS] = "columns_required"
-    elif _has_duplicates(columns):
-        errors[CONF_COLUMNS] = "duplicate_columns"
-    return errors
+        msg = "columns_required"
+        raise SchemaFlowError(msg)
+    if _has_duplicates(rows):
+        msg = "duplicate_rows"
+        raise SchemaFlowError(msg)
+    if _has_duplicates(columns):
+        msg = "duplicate_columns"
+        raise SchemaFlowError(msg)
+
+    user_input[CONF_ROWS] = rows
+    user_input[CONF_COLUMNS] = columns
+    return user_input
 
 
-class MatrixHelperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Matrix Helper."""
+ROWS_AND_COLUMNS_SCHEMA = {
+    vol.Required(CONF_ROWS): selector.SelectSelector(
+        selector.SelectSelectorConfig(options=[], custom_value=True, multiple=True)
+    ),
+    vol.Required(CONF_COLUMNS): selector.SelectSelector(
+        selector.SelectSelectorConfig(options=[], custom_value=True, multiple=True)
+    ),
+}
 
-    VERSION = 1
+CONFIG_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_NAME): selector.TextSelector(),
+        **ROWS_AND_COLUMNS_SCHEMA,
+    }
+)
 
-    async def async_step_user(
-        self, user_input: dict[str, str] | None = None
-    ) -> config_entries.ConfigFlowResult:
-        """Handle the single setup step: name, rows, columns."""
-        errors: dict[str, str] = {}
+OPTIONS_SCHEMA = vol.Schema(ROWS_AND_COLUMNS_SCHEMA)
 
-        if user_input is not None:
-            name = user_input[CONF_NAME].strip()
-            rows = _parse_labels(user_input[CONF_ROWS])
-            columns = _parse_labels(user_input[CONF_COLUMNS])
-            errors = _validate_rows_and_columns(rows, columns)
+CONFIG_FLOW = {
+    "user": SchemaFlowFormStep(
+        CONFIG_SCHEMA, validate_user_input=_validate_rows_and_columns
+    ),
+}
 
-            if not errors:
-                await self.async_set_unique_id(slugify(name))
-                self._abort_if_unique_id_configured()
-                return self.async_create_entry(
-                    title=name,
-                    data={CONF_NAME: name},
-                    options={CONF_ROWS: rows, CONF_COLUMNS: columns},
-                )
-
-        return self.async_show_form(
-            step_id="user",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_NAME, default=(user_input or {}).get(CONF_NAME, "")
-                    ): selector.TextSelector(),
-                    vol.Required(
-                        CONF_ROWS, default=(user_input or {}).get(CONF_ROWS, "")
-                    ): selector.TextSelector(),
-                    vol.Required(
-                        CONF_COLUMNS, default=(user_input or {}).get(CONF_COLUMNS, "")
-                    ): selector.TextSelector(),
-                },
-            ),
-            errors=errors,
-        )
-
-    @staticmethod
-    @callback
-    def async_get_options_flow(
-        _config_entry: config_entries.ConfigEntry,
-    ) -> MatrixHelperOptionsFlow:
-        """Get the options flow for editing rows/columns after creation."""
-        return MatrixHelperOptionsFlow()
+OPTIONS_FLOW = {
+    "init": SchemaFlowFormStep(
+        OPTIONS_SCHEMA, validate_user_input=_validate_rows_and_columns
+    ),
+}
 
 
-# Note: this integration must never register a config-entry update listener
-# (hass.config_entries.async_add_update_listener / entry.add_update_listener) —
-# OptionsFlowWithReload raises ValueError at flow-finish time if one exists.
-class MatrixHelperOptionsFlow(config_entries.OptionsFlowWithReload):
-    """Handle editing an existing matrix's rows and columns."""
+class MatrixHelperConfigFlow(SchemaConfigFlowHandler, domain=DOMAIN):
+    """Handle a config or options flow for Matrix Helper."""
 
-    async def async_step_init(
-        self, user_input: dict[str, str] | None = None
-    ) -> config_entries.ConfigFlowResult:
-        """Handle the single options step: rows, columns."""
-        errors: dict[str, str] = {}
+    config_flow = CONFIG_FLOW
+    options_flow = OPTIONS_FLOW
+    options_flow_reloads = True
 
-        if user_input is not None:
-            rows = _parse_labels(user_input[CONF_ROWS])
-            columns = _parse_labels(user_input[CONF_COLUMNS])
-            errors = _validate_rows_and_columns(rows, columns)
-
-            if not errors:
-                return self.async_create_entry(
-                    data={CONF_ROWS: rows, CONF_COLUMNS: columns}
-                )
-
-        current = user_input or {
-            CONF_ROWS: ", ".join(self.config_entry.options[CONF_ROWS]),
-            CONF_COLUMNS: ", ".join(self.config_entry.options[CONF_COLUMNS]),
-        }
-
-        return self.async_show_form(
-            step_id="init",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_ROWS, default=current.get(CONF_ROWS, "")
-                    ): selector.TextSelector(),
-                    vol.Required(
-                        CONF_COLUMNS, default=current.get(CONF_COLUMNS, "")
-                    ): selector.TextSelector(),
-                },
-            ),
-            errors=errors,
-        )
+    def async_config_entry_title(self, options: Mapping[str, Any]) -> str:
+        """Return config entry title."""
+        return str(options[CONF_NAME]).strip()

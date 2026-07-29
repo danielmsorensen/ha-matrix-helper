@@ -22,8 +22,9 @@ def matrix_config_entry() -> MockConfigEntry:
         domain=DOMAIN,
         entry_id="test_entry_id",
         title="Climate Profiles",
-        data={CONF_NAME: "Climate Profiles"},
+        data={},
         options={
+            CONF_NAME: "Climate Profiles",
             CONF_ROWS: ["Comfort", "Eco", "Sleep"],
             CONF_COLUMNS: ["Living Room", "Office"],
         },

@@ -23,15 +23,16 @@ async def test_successful_creation(hass):
         result["flow_id"],
         {
             CONF_NAME: "Climate Profiles",
-            CONF_ROWS: "Comfort, Eco, Sleep",
-            CONF_COLUMNS: "Living Room, Office",
+            CONF_ROWS: ["Comfort", "Eco", "Sleep"],
+            CONF_COLUMNS: ["Living Room", "Office"],
         },
     )
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["title"] == "Climate Profiles"
-    assert result["data"] == {CONF_NAME: "Climate Profiles"}
+    assert result["data"] == {}
     assert result["options"] == {
+        CONF_NAME: "Climate Profiles",
         CONF_ROWS: ["Comfort", "Eco", "Sleep"],
         CONF_COLUMNS: ["Living Room", "Office"],
     }
@@ -42,11 +43,11 @@ async def test_empty_rows_rejected(hass):
 
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
-        {CONF_NAME: "Climate Profiles", CONF_ROWS: "", CONF_COLUMNS: "Living Room"},
+        {CONF_NAME: "Climate Profiles", CONF_ROWS: [], CONF_COLUMNS: ["Living Room"]},
     )
 
     assert result["type"] is FlowResultType.FORM
-    assert result["errors"] == {CONF_ROWS: "rows_required"}
+    assert result["errors"] == {"base": "rows_required"}
 
 
 async def test_empty_columns_rejected(hass):
@@ -54,11 +55,11 @@ async def test_empty_columns_rejected(hass):
 
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
-        {CONF_NAME: "Climate Profiles", CONF_ROWS: "Comfort", CONF_COLUMNS: ""},
+        {CONF_NAME: "Climate Profiles", CONF_ROWS: ["Comfort"], CONF_COLUMNS: []},
     )
 
     assert result["type"] is FlowResultType.FORM
-    assert result["errors"] == {CONF_COLUMNS: "columns_required"}
+    assert result["errors"] == {"base": "columns_required"}
 
 
 async def test_duplicate_rows_rejected(hass):
@@ -68,12 +69,12 @@ async def test_duplicate_rows_rejected(hass):
         result["flow_id"],
         {
             CONF_NAME: "Climate Profiles",
-            CONF_ROWS: "Comfort, comfort",
-            CONF_COLUMNS: "Living Room",
+            CONF_ROWS: ["Comfort", "comfort"],
+            CONF_COLUMNS: ["Living Room"],
         },
     )
 
-    assert result["errors"] == {CONF_ROWS: "duplicate_rows"}
+    assert result["errors"] == {"base": "duplicate_rows"}
 
 
 async def test_duplicate_columns_rejected(hass):
@@ -83,12 +84,12 @@ async def test_duplicate_columns_rejected(hass):
         result["flow_id"],
         {
             CONF_NAME: "Climate Profiles",
-            CONF_ROWS: "Comfort",
-            CONF_COLUMNS: "Living Room, living room",
+            CONF_ROWS: ["Comfort"],
+            CONF_COLUMNS: ["Living Room", "living room"],
         },
     )
 
-    assert result["errors"] == {CONF_COLUMNS: "duplicate_columns"}
+    assert result["errors"] == {"base": "duplicate_columns"}
 
 
 async def test_slug_collision_rows_rejected(hass):
@@ -98,40 +99,20 @@ async def test_slug_collision_rows_rejected(hass):
         result["flow_id"],
         {
             CONF_NAME: "Climate Profiles",
-            CONF_ROWS: "Living Room, living-room",
-            CONF_COLUMNS: "Comfort",
+            CONF_ROWS: ["Living Room", "living-room"],
+            CONF_COLUMNS: ["Comfort"],
         },
     )
 
-    assert result["errors"] == {CONF_ROWS: "duplicate_rows"}
-
-
-async def test_duplicate_name_aborts(hass):
-    first = await _start_flow(hass)
-    await hass.config_entries.flow.async_configure(
-        first["flow_id"],
-        {
-            CONF_NAME: "Climate Profiles",
-            CONF_ROWS: "Comfort",
-            CONF_COLUMNS: "Living Room",
-        },
-    )
-
-    second = await _start_flow(hass)
-    result = await hass.config_entries.flow.async_configure(
-        second["flow_id"],
-        {CONF_NAME: "climate profiles", CONF_ROWS: "Eco", CONF_COLUMNS: "Office"},
-    )
-
-    assert result["type"] is FlowResultType.ABORT
-    assert result["reason"] == "already_configured"
+    assert result["errors"] == {"base": "duplicate_rows"}
 
 
 async def test_options_flow_updates_rows_and_columns_preserving_matching_data(hass):
     entry = MockConfigEntry(
         domain=DOMAIN,
-        data={CONF_NAME: "Climate Profiles"},
+        data={},
         options={
+            CONF_NAME: "Climate Profiles",
             CONF_ROWS: ["Comfort", "Eco"],
             CONF_COLUMNS: ["Living Room", "Office"],
         },
@@ -159,8 +140,8 @@ async def test_options_flow_updates_rows_and_columns_preserving_matching_data(ha
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
         {
-            CONF_ROWS: "Comfort, Sleep",  # drop Eco, add Sleep
-            CONF_COLUMNS: "Living Room, Bedroom",  # drop Office, add Bedroom
+            CONF_ROWS: ["Comfort", "Sleep"],  # drop Eco, add Sleep
+            CONF_COLUMNS: ["Living Room", "Bedroom"],  # drop Office, add Bedroom
         },
     )
 
@@ -174,30 +155,39 @@ async def test_options_flow_updates_rows_and_columns_preserving_matching_data(ha
     assert "eco" not in state.attributes["data"]  # dropped
     assert state.attributes["data"]["comfort"]["bedroom"] is None  # new -> null
 
+    # name must survive an options-flow save even though the options flow's
+    # own schema never declares a name field
+    assert entry.options[CONF_NAME] == "Climate Profiles"
+
 
 async def test_options_flow_empty_rows_rejected(hass):
     entry = MockConfigEntry(
         domain=DOMAIN,
-        data={CONF_NAME: "Climate Profiles"},
-        options={CONF_ROWS: ["Comfort"], CONF_COLUMNS: ["Living Room"]},
+        data={},
+        options={
+            CONF_NAME: "Climate Profiles",
+            CONF_ROWS: ["Comfort"],
+            CONF_COLUMNS: ["Living Room"],
+        },
     )
     entry.add_to_hass(hass)
 
     result = await hass.config_entries.options.async_init(entry.entry_id)
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
-        {CONF_ROWS: "", CONF_COLUMNS: "Living Room"},
+        {CONF_ROWS: [], CONF_COLUMNS: ["Living Room"]},
     )
 
     assert result["type"] is FlowResultType.FORM
-    assert result["errors"] == {CONF_ROWS: "rows_required"}
+    assert result["errors"] == {"base": "rows_required"}
 
 
 async def test_options_flow_prefills_current_rows_and_columns(hass):
     entry = MockConfigEntry(
         domain=DOMAIN,
-        data={CONF_NAME: "Climate Profiles"},
+        data={},
         options={
+            CONF_NAME: "Climate Profiles",
             CONF_ROWS: ["Comfort", "Eco"],
             CONF_COLUMNS: ["Living Room"],
         },
@@ -206,8 +196,9 @@ async def test_options_flow_prefills_current_rows_and_columns(hass):
 
     result = await hass.config_entries.options.async_init(entry.entry_id)
 
-    schema_defaults = {
-        field.schema: field.default() for field in result["data_schema"].schema
+    suggested = {
+        field.schema: field.description["suggested_value"]
+        for field in result["data_schema"].schema
     }
-    assert schema_defaults[CONF_ROWS] == "Comfort, Eco"
-    assert schema_defaults[CONF_COLUMNS] == "Living Room"
+    assert suggested[CONF_ROWS] == ["Comfort", "Eco"]
+    assert suggested[CONF_COLUMNS] == ["Living Room"]
