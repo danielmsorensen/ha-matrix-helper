@@ -26,7 +26,7 @@ class MatrixHelperEntity(RestoreEntity):
         """Build the matrix schema and blank cell data from a config entry."""
         self._entry = entry
         self._attr_unique_id = entry.entry_id
-        self._attr_name = entry.data[CONF_NAME]
+        self._attr_name = entry.options[CONF_NAME]
         self.rows: list[str] = [slugify(row) for row in entry.options[CONF_ROWS]]
         self.columns: list[str] = [
             slugify(column) for column in entry.options[CONF_COLUMNS]

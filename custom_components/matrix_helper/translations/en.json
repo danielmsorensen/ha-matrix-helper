@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "description": "Create a new matrix: give it a name, then list its rows and columns as comma-separated labels.",
+        "description": "Create a new matrix: give it a name, then add its rows and columns as labels.",
         "data": {
           "name": "Name",
           "rows": "Rows",
@@ -10,8 +10,8 @@
         },
         "data_description": {
           "name": "A name for this matrix, e.g. \"Climate Profiles\".",
-          "rows": "Comma-separated row labels, e.g. \"Comfort, Eco, Sleep\".",
-          "columns": "Comma-separated column labels, e.g. \"Living Room, Office, Bedroom\"."
+          "rows": "Row labels, e.g. \"Comfort\", \"Eco\", \"Sleep\" -- type a label and press Enter to add it.",
+          "columns": "Column labels, e.g. \"Living Room\", \"Office\", \"Bedroom\" -- type a label and press Enter to add it."
         }
       }
     },
@@ -20,9 +20,6 @@
       "columns_required": "At least one column is required.",
       "duplicate_rows": "Row labels must be unique (case-insensitive).",
       "duplicate_columns": "Column labels must be unique (case-insensitive)."
-    },
-    "abort": {
-      "already_configured": "A matrix with this name already exists."
     }
   },
   "options": {
@@ -34,8 +31,8 @@
           "columns": "Columns"
         },
         "data_description": {
-          "rows": "Comma-separated row labels, e.g. \"Comfort, Eco, Sleep\". A label not in this list is removed (its data is discarded); a new label starts at null.",
-          "columns": "Comma-separated column labels, e.g. \"Living Room, Office, Bedroom\". A label not in this list is removed (its data is discarded); a new label starts at null."
+          "rows": "Row labels, e.g. \"Comfort\", \"Eco\", \"Sleep\" -- type a label and press Enter to add it. A label not in this list is removed (its data is discarded); a new label starts at null.",
+          "columns": "Column labels, e.g. \"Living Room\", \"Office\", \"Bedroom\" -- type a label and press Enter to add it. A label not in this list is removed (its data is discarded); a new label starts at null."
         }
       }
     },

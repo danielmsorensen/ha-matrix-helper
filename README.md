@@ -10,7 +10,7 @@ plus row/column editing after creation and a Lovelace card for daily cell edits.
 
 ## Implemented so far
 
-- [x] Config flow: create a matrix (name, comma-separated rows, comma-separated columns)
+- [x] Config flow: create a matrix (name, rows and columns entered as individual labels)
 - [x] `matrix_helper.set_cell` (row, column, value) — set or clear a single cell
 - [x] `matrix_helper.set_row` (row, values) — partial update of one row across columns
 - [x] `matrix_helper.set_column` (column, values) — partial update of one column across rows
