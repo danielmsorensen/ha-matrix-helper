@@ -217,6 +217,28 @@ async def test_options_flow_empty_rows_rejected(hass):
     assert result["errors"] == {"base": "rows_required"}
 
 
+async def test_options_flow_duplicate_rows_rejected(hass):
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={},
+        options={
+            CONF_NAME: "Climate Profiles",
+            CONF_ROWS: ["Comfort"],
+            CONF_COLUMNS: ["Living Room"],
+        },
+    )
+    entry.add_to_hass(hass)
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {CONF_ROWS: ["Comfort", "comfort"], CONF_COLUMNS: ["Living Room"]},
+    )
+
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {"base": "duplicate_rows"}
+
+
 async def test_options_flow_prefills_current_rows_and_columns(hass):
     entry = MockConfigEntry(
         domain=DOMAIN,
