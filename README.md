@@ -27,10 +27,11 @@ plus row/column editing after creation and a Lovelace card for daily cell edits.
       edits, addable via the dashboard's "Add Card" picker (including as a suggested
       card for the entity) or YAML (`type: custom:matrix-helper-card`). Configurable
       tap/hold/double-tap actions (None, More info, Navigate, URL — More info by
-      default on tap), matching how standard Lovelace cards behave. Row/column headers
-      are a best-effort reconstruction of the original label (`living_room` →
-      "Living Room"), not the exact original text, since the backend only stores the
-      slug.
+      default on tap) and a Content section (Name, Icon, Colour, Secondary information)
+      matching the real Entities-row editor, all backed by Home Assistant's own
+      selectors/formatters rather than hand-rolled equivalents. Row/column headers are a
+      best-effort reconstruction of the original label (`living_room` → "Living Room"),
+      not the exact original text, since the backend only stores the slug.
 
 ## Development
 
