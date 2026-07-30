@@ -55,5 +55,5 @@ Requires Node.js 18+ on `PATH` for the Lovelace card's build tooling (`scripts/s
    ```yaml
    type: custom:matrix-helper-card
    entity: matrix_helper.climate_profiles
-   title: Climate Profiles   # optional, defaults to the entity's friendly name
+   name: Climate Profiles   # optional, defaults to the entity's friendly name
    ```
