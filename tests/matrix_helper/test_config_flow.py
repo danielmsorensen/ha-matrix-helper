@@ -38,6 +38,41 @@ async def test_successful_creation(hass):
     }
 
 
+async def test_whitespace_stripped_and_empty_labels_dropped(hass):
+    result = await _start_flow(hass)
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {
+            CONF_NAME: "  Climate Profiles  ",
+            CONF_ROWS: ["  Comfort  ", "   ", "Eco"],
+            CONF_COLUMNS: ["Living Room", "  "],
+        },
+    )
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["title"] == "Climate Profiles"
+    assert result["options"][CONF_NAME] == "Climate Profiles"
+    assert result["options"][CONF_ROWS] == ["Comfort", "Eco"]
+    assert result["options"][CONF_COLUMNS] == ["Living Room"]
+
+
+async def test_whitespace_only_rows_rejected(hass):
+    result = await _start_flow(hass)
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {
+            CONF_NAME: "Climate Profiles",
+            CONF_ROWS: ["   "],
+            CONF_COLUMNS: ["Living Room"],
+        },
+    )
+
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {"base": "rows_required"}
+
+
 async def test_empty_rows_rejected(hass):
     result = await _start_flow(hass)
 
