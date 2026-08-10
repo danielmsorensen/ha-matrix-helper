@@ -44,19 +44,22 @@ People *love* thorough bug reports. I'm not even kidding.
 
 ## Use a Consistent Coding Style
 
-Run `scripts/lint` (`ruff format`/`ruff check --fix` for Python, ESLint for the
-frontend) before submitting.
+Run `scripts/lint` (`ruff format`/`ruff check --fix`) before submitting.
 
 ## Test your code modification
 
-- `scripts/setup` — install backend (pip) and frontend (npm) dependencies
-- `scripts/develop` — run a local Home Assistant instance with this integration
-  and the Lovelace card loaded, using the included [`configuration.yaml`](./config/configuration.yaml)
-- `scripts/lint` — run `ruff format`/`ruff check --fix` and the frontend ESLint config
-- `pytest` — run the backend test suite
+- `scripts/setup` — install dependencies
+- `scripts/develop` — run a local Home Assistant instance with this integration loaded,
+  using the included [`configuration.yaml`](./config/configuration.yaml)
+- `scripts/lint` — run `ruff format`/`ruff check --fix`
+- `pytest` — run the test suite
 
-The backend test suite and `scripts/develop` require a POSIX environment (Home
-Assistant core has POSIX-only dependencies) — on Windows, run them via WSL2.
+The test suite and `scripts/develop` require a POSIX environment (Home Assistant core has
+POSIX-only dependencies) — on Windows, run them via WSL2.
+
+Contributing to the Lovelace card? See
+[ha-matrix-helper-card](https://github.com/danielmsorensen/ha-matrix-helper-card), a
+separate repository.
 
 ## License
 

@@ -10,12 +10,6 @@ if [[ ! -d "${PWD}/config" ]]; then
     hass --config "${PWD}/config" --script ensure_config
 fi
 
-# Build the Lovelace card and publish it into config/www so Home Assistant
-# serves it at /local/matrix-helper-card.js.
-scripts/build-frontend
-mkdir -p "${PWD}/config/www"
-cp "${PWD}/frontend/dist/matrix-helper-card.js" "${PWD}/config/www/matrix-helper-card.js"
-
 # Set the path to custom_components
 ## This let's us have the structure we want <root>/custom_components/matrix_helper
 ## while at the same time have Home Assistant configuration inside <root>/config

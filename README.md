@@ -6,7 +6,9 @@ profiles (comfort/eco/sleep), columns are rooms, cells are target temperatures, 
 by schedule-driven automations via `state_attr(...)['data'][profile][room]`.
 
 **Status:** Phase 1 complete (backend entity, services, config flow, restore/reconcile),
-plus row/column editing after creation and a Lovelace card for daily cell edits.
+plus row/column editing after creation. See
+[ha-matrix-helper-card](https://github.com/danielmsorensen/ha-matrix-helper-card) for the
+companion Lovelace card used for daily cell edits.
 
 ## Implemented so far
 
@@ -23,38 +25,14 @@ plus row/column editing after creation and a Lovelace card for daily cell edits.
       Editing is a diff by exact label match, not a rename — a label that changes text
       is treated as removing the old one and adding a new one (its data is discarded),
       not as preserving the row/column under a new name.
-- [x] Lovelace card (`matrix-helper-card`) — an inline-editable grid for quick cell
-      edits, addable via the dashboard's "Add Card" picker (including as a suggested
-      card for the entity) or YAML (`type: custom:matrix-helper-card`). Configurable
-      tap/hold/double-tap actions (None, More info, Navigate, URL — More info by
-      default on tap) and a Content section (Name, Icon, Colour, Secondary information)
-      matching the real Entities-row editor, all backed by Home Assistant's own
-      selectors/formatters rather than hand-rolled equivalents. Row/column headers are a
-      best-effort reconstruction of the original label (`living_room` → "Living Room"),
-      not the exact original text, since the backend only stores the slug.
+- [x] Lovelace card — see
+      [ha-matrix-helper-card](https://github.com/danielmsorensen/ha-matrix-helper-card),
+      a separate repository so it can be installed via HACS independently of this
+      integration.
 
 ## Development
-
-Requires Node.js 18+ on `PATH` for the Lovelace card's build tooling (`scripts/setup` and
-`scripts/lint` shell out to `npm`).
 
 - `scripts/setup` — install dependencies
 - `scripts/develop` — run a local Home Assistant instance with this integration loaded
 - `scripts/lint` — run `ruff format`/`ruff check --fix`
 - `pytest` — run the test suite
-
-## Using the Lovelace card
-
-1. `scripts/develop` builds the card automatically and publishes it to
-   `config/www/matrix-helper-card.js`. For a real (non-dev) Home Assistant instance, run
-   `scripts/build-frontend` and copy `frontend/dist/matrix-helper-card.js` into that
-   instance's own `www/` folder.
-2. Add it as a dashboard resource once: Settings → Dashboards → Resources → Add Resource,
-   URL `/local/matrix-helper-card.js`, Resource type "JavaScript Module".
-3. Add the card via a dashboard's "Add Card" picker (search "Matrix Helper Card") or in
-   YAML mode:
-   ```yaml
-   type: custom:matrix-helper-card
-   entity: matrix_helper.climate_profiles
-   name: Climate Profiles   # optional, defaults to the entity's friendly name
-   ```
