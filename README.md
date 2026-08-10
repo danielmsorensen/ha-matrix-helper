@@ -36,3 +36,21 @@ companion Lovelace card used for daily cell edits.
 - `scripts/develop` — run a local Home Assistant instance with this integration loaded
 - `scripts/lint` — run `ruff format`/`ruff check --fix`
 - `pytest` — run the test suite
+
+### Developing against the Lovelace card
+
+Changing something both this integration and the card depend on (e.g. an entity
+attribute) means testing both repos together:
+
+1. `scripts/develop` here to start a local Home Assistant instance, and add the card as a
+   dashboard resource once (see
+   [ha-matrix-helper-card's README](https://github.com/danielmsorensen/ha-matrix-helper-card#manual)).
+2. In a sibling checkout of
+   [ha-matrix-helper-card](https://github.com/danielmsorensen/ha-matrix-helper-card), run
+   `scripts/watch` to rebuild the card on save, then `scripts/link-local` after each
+   change to copy the build into this repo's `config/www/`.
+3. Hard-refresh (Ctrl+F5) the dashboard after each `link-local` — Home Assistant does not
+   auto-bust the cache for manually added `/local/` resources.
+
+There's no automation bridging the two repos beyond that — they're versioned and
+released independently.

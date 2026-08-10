@@ -59,7 +59,9 @@ POSIX-only dependencies) — on Windows, run them via WSL2.
 
 Contributing to the Lovelace card? See
 [ha-matrix-helper-card](https://github.com/danielmsorensen/ha-matrix-helper-card), a
-separate repository.
+separate repository. For a change that touches both repos, see this README's
+[Developing against the Lovelace card](./README.md#developing-against-the-lovelace-card)
+section for the two-repo testing workflow.
 
 ## License
 
