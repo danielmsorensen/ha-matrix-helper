@@ -1,4 +1,4 @@
-"""Tests for persistence, reload/removal and recorder exclusion."""
+"""Tests for persistence, reload/removal, diagnostics and recorder exclusion."""
 
 from __future__ import annotations
 
@@ -11,6 +11,9 @@ from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import (
     async_fire_time_changed,
     mock_restore_cache,
+)
+from pytest_homeassistant_custom_component.components.diagnostics import (
+    get_diagnostics_for_config_entry,
 )
 
 from custom_components.matrix_helper.const import DOMAIN, SERVICE_SET_CELL
@@ -114,6 +117,18 @@ async def test_removing_entry_deletes_storage(
 
     assert STORAGE_KEY not in hass_storage
     assert hass.states.get(ENTITY_ID) is None
+
+
+async def test_diagnostics(hass, loaded_entry, hass_client):
+    await _set_office(hass, 20)
+
+    diagnostics = await get_diagnostics_for_config_entry(
+        hass, hass_client, loaded_entry
+    )
+
+    assert diagnostics["entity_id"] == ENTITY_ID
+    assert diagnostics["options"]["rows"] == ["Comfort", "Eco", "Sleep"]
+    assert diagnostics["data"]["comfort"]["office"] == 20.0
 
 
 @pytest.mark.usefixtures("loaded_entry")
