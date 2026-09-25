@@ -28,6 +28,7 @@ if TYPE_CHECKING:
     from homeassistant.helpers.storage import Store
 
 type MatrixData = dict[str, dict[str, float | None]]
+type Cell = tuple[str, str]
 
 
 def _restored_value(value: Any) -> float | None:
@@ -41,9 +42,10 @@ class MatrixHelperEntity(RestoreEntity):
     """
     A single rows x columns matrix of float-or-null cells.
 
-    Data is persisted in its own Store so edits survive a crash, not just a
-    clean shutdown. RestoreEntity is kept only to migrate data from 1.0.x,
-    which stored it solely in the restore state.
+    Row/column keys are the slugs of their labels; every service accepts
+    either form. Data is persisted in its own Store so edits survive a
+    crash, not just a clean shutdown. RestoreEntity is kept only to migrate
+    data from 1.0.x, which stored it solely in the restore state.
     """
 
     _attr_should_poll = False
@@ -63,6 +65,7 @@ class MatrixHelperEntity(RestoreEntity):
         self.column_labels: list[str] = list(entry.options[CONF_COLUMNS])
         self.rows: list[str] = [slugify(label) for label in self.row_labels]
         self.columns: list[str] = [slugify(label) for label in self.column_labels]
+        self._column_keys = frozenset(self.columns)
         self._data: MatrixData = {row: dict.fromkeys(self.columns) for row in self.rows}
         self._last_modified: str = dt_util.utcnow().isoformat()
 
@@ -94,14 +97,9 @@ class MatrixHelperEntity(RestoreEntity):
             ATTR_DATA: self.data,
         }
 
-    def _changed(self) -> None:
-        """Publish and persist the new data after an edit."""
-        self._last_modified = dt_util.utcnow().isoformat()
-        self.async_write_ha_state()
-        self._store.async_delay_save(self._storage_data, STORAGE_SAVE_DELAY)
-
-    def _raise_if_unknown_row(self, row: str) -> None:
-        if row not in self.rows:
+    def _row_key(self, row: str) -> str:
+        key = slugify(row)
+        if key not in self._data:
             raise ServiceValidationError(
                 translation_domain=DOMAIN,
                 translation_key="unknown_row",
@@ -110,9 +108,11 @@ class MatrixHelperEntity(RestoreEntity):
                     "valid_rows": ", ".join(self.rows),
                 },
             )
+        return key
 
-    def _raise_if_unknown_column(self, column: str) -> None:
-        if column not in self.columns:
+    def _column_key(self, column: str) -> str:
+        key = slugify(column)
+        if key not in self._column_keys:
             raise ServiceValidationError(
                 translation_domain=DOMAIN,
                 translation_key="unknown_column",
@@ -121,35 +121,82 @@ class MatrixHelperEntity(RestoreEntity):
                     "valid_columns": ", ".join(self.columns),
                 },
             )
+        return key
+
+    def _cells(self, row: str | None, column: str | None) -> list[Cell]:
+        """Return every cell in the given row and/or column (all if neither)."""
+        rows = [self._row_key(row)] if row is not None else self.rows
+        columns = [self._column_key(column)] if column is not None else self.columns
+        return [(r, c) for r in rows for c in columns]
+
+    def _apply(self, changes: dict[Cell, float | None]) -> None:
+        """
+        Apply already-validated cell changes, writing state only if any differ.
+
+        Callers resolve every key before calling this, so an invalid key in a
+        bulk update raises before anything is changed.
+        """
+        changed = False
+        for (row, column), value in changes.items():
+            if self._data[row][column] != value:
+                self._data[row][column] = value
+                changed = True
+        if not changed:
+            return
+        self._last_modified = dt_util.utcnow().isoformat()
+        self.async_write_ha_state()
+        self._store.async_delay_save(self._storage_data, STORAGE_SAVE_DELAY)
 
     async def async_set_cell(
         self, row: str, column: str, value: float | None = None
     ) -> None:
         """Set (or clear) a single cell."""
-        self._raise_if_unknown_row(row)
-        self._raise_if_unknown_column(column)
-        self._data[row][column] = value
-        self._changed()
+        self._apply({(self._row_key(row), self._column_key(column)): value})
 
     async def async_set_row(self, row: str, values: dict[str, float | None]) -> None:
         """Update a row, changing only the given columns."""
-        self._raise_if_unknown_row(row)
-        for column in values:
-            self._raise_if_unknown_column(column)
-        for column, value in values.items():
-            self._data[row][column] = value
-        self._changed()
+        row_key = self._row_key(row)
+        self._apply({(row_key, self._column_key(c)): v for c, v in values.items()})
 
     async def async_set_column(
         self, column: str, values: dict[str, float | None]
     ) -> None:
         """Update a column, changing only the given rows."""
-        self._raise_if_unknown_column(column)
-        for row in values:
-            self._raise_if_unknown_row(row)
-        for row, value in values.items():
-            self._data[row][column] = value
-        self._changed()
+        column_key = self._column_key(column)
+        self._apply({(self._row_key(r), column_key): v for r, v in values.items()})
+
+    async def async_set_values(
+        self, values: dict[str, dict[str, float | None]]
+    ) -> None:
+        """Update any cells, given as a {row: {column: value}} mapping."""
+        self._apply(
+            {
+                (self._row_key(row), self._column_key(column)): value
+                for row, columns in values.items()
+                for column, value in columns.items()
+            }
+        )
+
+    async def async_fill(
+        self,
+        value: float | None = None,
+        row: str | None = None,
+        column: str | None = None,
+    ) -> None:
+        """Set every cell (or every cell in a row/column) to one value."""
+        self._apply(dict.fromkeys(self._cells(row, column), value))
+
+    async def async_adjust(
+        self, amount: float, row: str | None = None, column: str | None = None
+    ) -> None:
+        """Add an amount to every non-null cell (or those in a row/column)."""
+        self._apply(
+            {
+                (r, c): round(current + amount, 10)
+                for r, c in self._cells(row, column)
+                if (current := self._data[r][c]) is not None
+            }
+        )
 
     def _storage_data(self) -> dict[str, Any]:
         return {"data": self._data, "last_modified": self._last_modified}

@@ -1,0 +1,10 @@
+{
+  "services": {
+    "set_cell": { "service": "mdi:table-edit" },
+    "set_row": { "service": "mdi:table-row" },
+    "set_column": { "service": "mdi:table-column" },
+    "set_values": { "service": "mdi:table-large" },
+    "fill": { "service": "mdi:format-color-fill" },
+    "adjust": { "service": "mdi:plus-minus-variant" }
+  }
+}

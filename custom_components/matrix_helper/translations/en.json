@@ -54,35 +54,93 @@
   "services": {
     "set_cell": {
       "name": "Set cell",
-      "description": "Set (or clear) a single cell in a matrix.",
+      "description": "Sets (or clears) a single cell in a matrix.",
       "fields": {
-        "row": { "name": "Row", "description": "The row key to update." },
-        "column": { "name": "Column", "description": "The column key to update." },
+        "row": {
+          "name": "Row",
+          "description": "The row to update, by label (\"Comfort\") or key (\"comfort\")."
+        },
+        "column": {
+          "name": "Column",
+          "description": "The column to update, by label (\"Living Room\") or key (\"living_room\")."
+        },
         "value": {
           "name": "Value",
-          "description": "The new value. Omit to clear the cell."
+          "description": "The new value. Leave empty to clear the cell."
         }
       }
     },
     "set_row": {
       "name": "Set row",
-      "description": "Update one or more cells in a row.",
+      "description": "Updates one or more cells in a row. Columns not listed are left unchanged.",
       "fields": {
-        "row": { "name": "Row", "description": "The row key to update." },
+        "row": {
+          "name": "Row",
+          "description": "The row to update, by label or key."
+        },
         "values": {
           "name": "Values",
-          "description": "A mapping of column key to new value (or null to clear)."
+          "description": "A mapping of column (label or key) to new value, or null to clear."
         }
       }
     },
     "set_column": {
       "name": "Set column",
-      "description": "Update one or more cells in a column.",
+      "description": "Updates one or more cells in a column. Rows not listed are left unchanged.",
       "fields": {
-        "column": { "name": "Column", "description": "The column key to update." },
+        "column": {
+          "name": "Column",
+          "description": "The column to update, by label or key."
+        },
         "values": {
           "name": "Values",
-          "description": "A mapping of row key to new value (or null to clear)."
+          "description": "A mapping of row (label or key) to new value, or null to clear."
+        }
+      }
+    },
+    "set_values": {
+      "name": "Set values",
+      "description": "Updates any number of cells at once. Cells not listed are left unchanged.",
+      "fields": {
+        "values": {
+          "name": "Values",
+          "description": "A nested mapping of row, then column (labels or keys), to new value, or null to clear."
+        }
+      }
+    },
+    "fill": {
+      "name": "Fill",
+      "description": "Sets every cell to the same value — or only the cells in one row and/or column.",
+      "fields": {
+        "value": {
+          "name": "Value",
+          "description": "The value to set. Leave empty to clear the cells."
+        },
+        "row": {
+          "name": "Row",
+          "description": "Only fill this row (label or key)."
+        },
+        "column": {
+          "name": "Column",
+          "description": "Only fill this column (label or key)."
+        }
+      }
+    },
+    "adjust": {
+      "name": "Adjust",
+      "description": "Adds an amount to every cell that has a value — or only the cells in one row and/or column. Empty cells are left empty.",
+      "fields": {
+        "amount": {
+          "name": "Amount",
+          "description": "The amount to add. Use a negative number to subtract."
+        },
+        "row": {
+          "name": "Row",
+          "description": "Only adjust this row (label or key)."
+        },
+        "column": {
+          "name": "Column",
+          "description": "Only adjust this column (label or key)."
         }
       }
     }

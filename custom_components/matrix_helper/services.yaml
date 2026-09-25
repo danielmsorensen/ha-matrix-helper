@@ -19,6 +19,7 @@ set_cell:
       selector:
         number:
           mode: box
+          step: any
 
 set_row:
   target:
@@ -51,3 +52,60 @@ set_column:
       example: '{"comfort": 21.0, "eco": null}'
       selector:
         object:
+
+set_values:
+  target:
+    entity:
+      domain: matrix_helper
+  fields:
+    values:
+      required: true
+      example: '{"comfort": {"living_room": 21.0}, "eco": {"office": 17.5}}'
+      selector:
+        object:
+
+fill:
+  target:
+    entity:
+      domain: matrix_helper
+  fields:
+    value:
+      required: false
+      example: 18.0
+      selector:
+        number:
+          mode: box
+          step: any
+    row:
+      required: false
+      example: "eco"
+      selector:
+        text:
+    column:
+      required: false
+      example: "office"
+      selector:
+        text:
+
+adjust:
+  target:
+    entity:
+      domain: matrix_helper
+  fields:
+    amount:
+      required: true
+      example: 0.5
+      selector:
+        number:
+          mode: box
+          step: any
+    row:
+      required: false
+      example: "comfort"
+      selector:
+        text:
+    column:
+      required: false
+      example: "office"
+      selector:
+        text:
