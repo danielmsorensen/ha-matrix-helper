@@ -1,4 +1,4 @@
-"""Tests for MatrixHelperEntity.async_set_cell / async_set_row."""
+"""Tests for the set_cell / set_row / set_column services."""
 
 from __future__ import annotations
 
@@ -11,17 +11,10 @@ from custom_components.matrix_helper.const import (
     SERVICE_SET_CELL,
     SERVICE_SET_COLUMN,
 )
-from custom_components.matrix_helper.matrix import MatrixHelperEntity
 
 
-def _attach(entity: MatrixHelperEntity, hass) -> None:
-    entity.hass = hass
-    entity.entity_id = "matrix_helper.climate_profiles"
-
-
-async def test_set_cell_updates_value_and_timestamp(hass, matrix_config_entry):
-    entity = MatrixHelperEntity(matrix_config_entry)
-    _attach(entity, hass)
+async def test_set_cell_updates_value_and_timestamp(matrix_entity):
+    entity = matrix_entity
     before = entity.state
 
     await entity.async_set_cell(row="comfort", column="living_room", value=21.0)
@@ -30,9 +23,8 @@ async def test_set_cell_updates_value_and_timestamp(hass, matrix_config_entry):
     assert entity.state != before
 
 
-async def test_set_cell_omitted_value_clears_cell(hass, matrix_config_entry):
-    entity = MatrixHelperEntity(matrix_config_entry)
-    _attach(entity, hass)
+async def test_set_cell_omitted_value_clears_cell(matrix_entity):
+    entity = matrix_entity
     await entity.async_set_cell(row="comfort", column="living_room", value=21.0)
 
     await entity.async_set_cell(row="comfort", column="living_room")
@@ -40,25 +32,22 @@ async def test_set_cell_omitted_value_clears_cell(hass, matrix_config_entry):
     assert entity.extra_state_attributes[ATTR_DATA]["comfort"]["living_room"] is None
 
 
-async def test_set_cell_unknown_row_raises(hass, matrix_config_entry):
-    entity = MatrixHelperEntity(matrix_config_entry)
-    _attach(entity, hass)
+async def test_set_cell_unknown_row_raises(matrix_entity):
+    entity = matrix_entity
 
     with pytest.raises(ServiceValidationError):
         await entity.async_set_cell(row="unknown", column="living_room", value=1.0)
 
 
-async def test_set_cell_unknown_column_raises(hass, matrix_config_entry):
-    entity = MatrixHelperEntity(matrix_config_entry)
-    _attach(entity, hass)
+async def test_set_cell_unknown_column_raises(matrix_entity):
+    entity = matrix_entity
 
     with pytest.raises(ServiceValidationError):
         await entity.async_set_cell(row="comfort", column="unknown", value=1.0)
 
 
-async def test_set_row_partial_update(hass, matrix_config_entry):
-    entity = MatrixHelperEntity(matrix_config_entry)
-    _attach(entity, hass)
+async def test_set_row_partial_update(matrix_entity):
+    entity = matrix_entity
     await entity.async_set_cell(row="comfort", column="office", value=20.0)
 
     await entity.async_set_row(row="comfort", values={"living_room": 21.0})
@@ -68,9 +57,8 @@ async def test_set_row_partial_update(hass, matrix_config_entry):
     assert data["office"] == 20.0  # untouched by the partial update
 
 
-async def test_set_row_unknown_column_raises(hass, matrix_config_entry):
-    entity = MatrixHelperEntity(matrix_config_entry)
-    _attach(entity, hass)
+async def test_set_row_unknown_column_raises(matrix_entity):
+    entity = matrix_entity
 
     with pytest.raises(ServiceValidationError):
         await entity.async_set_row(row="comfort", values={"unknown": 1.0})
@@ -97,9 +85,8 @@ async def test_set_cell_service_end_to_end(hass, matrix_config_entry):
     assert state.attributes["data"]["comfort"]["living_room"] == 21.0
 
 
-async def test_set_column_updates_value_and_timestamp(hass, matrix_config_entry):
-    entity = MatrixHelperEntity(matrix_config_entry)
-    _attach(entity, hass)
+async def test_set_column_updates_value_and_timestamp(matrix_entity):
+    entity = matrix_entity
     before = entity.state
 
     await entity.async_set_column(column="living_room", values={"comfort": 21.0})
@@ -108,9 +95,8 @@ async def test_set_column_updates_value_and_timestamp(hass, matrix_config_entry)
     assert entity.state != before
 
 
-async def test_set_column_omitted_value_clears_cell(hass, matrix_config_entry):
-    entity = MatrixHelperEntity(matrix_config_entry)
-    _attach(entity, hass)
+async def test_set_column_omitted_value_clears_cell(matrix_entity):
+    entity = matrix_entity
     await entity.async_set_column(column="living_room", values={"comfort": 21.0})
 
     await entity.async_set_column(column="living_room", values={"comfort": None})
@@ -118,9 +104,8 @@ async def test_set_column_omitted_value_clears_cell(hass, matrix_config_entry):
     assert entity.extra_state_attributes[ATTR_DATA]["comfort"]["living_room"] is None
 
 
-async def test_set_column_partial_update(hass, matrix_config_entry):
-    entity = MatrixHelperEntity(matrix_config_entry)
-    _attach(entity, hass)
+async def test_set_column_partial_update(matrix_entity):
+    entity = matrix_entity
     await entity.async_set_cell(row="eco", column="office", value=20.0)
 
     await entity.async_set_column(column="living_room", values={"comfort": 21.0})
@@ -130,25 +115,22 @@ async def test_set_column_partial_update(hass, matrix_config_entry):
     assert data["eco"]["office"] == 20.0  # untouched by the partial update
 
 
-async def test_set_column_unknown_column_raises(hass, matrix_config_entry):
-    entity = MatrixHelperEntity(matrix_config_entry)
-    _attach(entity, hass)
+async def test_set_column_unknown_column_raises(matrix_entity):
+    entity = matrix_entity
 
     with pytest.raises(ServiceValidationError):
         await entity.async_set_column(column="unknown", values={"comfort": 1.0})
 
 
-async def test_set_column_unknown_row_raises(hass, matrix_config_entry):
-    entity = MatrixHelperEntity(matrix_config_entry)
-    _attach(entity, hass)
+async def test_set_column_unknown_row_raises(matrix_entity):
+    entity = matrix_entity
 
     with pytest.raises(ServiceValidationError):
         await entity.async_set_column(column="living_room", values={"unknown": 1.0})
 
 
-async def test_set_column_atomic_on_unknown_row(hass, matrix_config_entry):
-    entity = MatrixHelperEntity(matrix_config_entry)
-    _attach(entity, hass)
+async def test_set_column_atomic_on_unknown_row(matrix_entity):
+    entity = matrix_entity
 
     with pytest.raises(ServiceValidationError):
         await entity.async_set_column(
@@ -159,11 +141,10 @@ async def test_set_column_atomic_on_unknown_row(hass, matrix_config_entry):
     assert entity.extra_state_attributes[ATTR_DATA]["comfort"]["living_room"] is None
 
 
-async def test_set_row_atomic_on_unknown_column(hass, matrix_config_entry):
+async def test_set_row_atomic_on_unknown_column(matrix_entity):
     """Regression test for a gap noted in the Phase 1 review: set_row's atomicity
     was only tested with an all-bad-key dict, never a mixed valid/invalid one."""
-    entity = MatrixHelperEntity(matrix_config_entry)
-    _attach(entity, hass)
+    entity = matrix_entity
 
     with pytest.raises(ServiceValidationError):
         await entity.async_set_row(

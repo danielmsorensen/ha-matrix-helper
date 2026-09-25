@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import voluptuous as vol
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_component import EntityComponent
+from homeassistant.helpers.storage import Store
 
 from .const import (
     ATTR_COLUMN,
@@ -19,6 +20,7 @@ from .const import (
     SERVICE_SET_CELL,
     SERVICE_SET_COLUMN,
     SERVICE_SET_ROW,
+    STORAGE_VERSION,
 )
 from .matrix import MatrixHelperEntity
 
@@ -48,6 +50,10 @@ SET_COLUMN_SCHEMA = {
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
+def _store(hass: HomeAssistant, entry: ConfigEntry) -> Store[dict[str, Any]]:
+    return Store(hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}")
+
+
 async def async_setup(hass: HomeAssistant, _config: ConfigType) -> bool:
     """Set up the shared EntityComponent and services for this domain."""
     component: EntityComponent[MatrixHelperEntity] = EntityComponent(
@@ -70,7 +76,7 @@ async def async_setup(hass: HomeAssistant, _config: ConfigType) -> bool:
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up a single matrix from a config entry."""
     component: EntityComponent[MatrixHelperEntity] = hass.data[DOMAIN]
-    entity = MatrixHelperEntity(entry)
+    entity = MatrixHelperEntity(entry, _store(hass, entry))
     await component.async_add_entities([entity])
     entry.runtime_data = entity
 
@@ -80,7 +86,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # it creates has no config_entry_id. Link it explicitly so the
     # frontend can associate the entity with its config entry (otherwise
     # Settings > Helpers shows the config entry and the entity as two
-    # separate, unlinked rows).
+    # separate, unlinked rows) and removing the entry removes the entity.
     registry = er.async_get(hass)
     if entity.entity_id in registry.entities:
         registry.async_update_entity(entity.entity_id, config_entry_id=entry.entry_id)
@@ -93,3 +99,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     component: EntityComponent[MatrixHelperEntity] = hass.data[DOMAIN]
     await component.async_remove_entity(entry.runtime_data.entity_id)
     return True
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Delete a removed matrix's stored data."""
+    await _store(hass, entry).async_remove()

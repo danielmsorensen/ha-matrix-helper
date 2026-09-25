@@ -7,11 +7,10 @@ from datetime import datetime
 from homeassistant.helpers import entity_registry as er
 
 from custom_components.matrix_helper.const import ATTR_COLUMNS, ATTR_DATA, ATTR_ROWS
-from custom_components.matrix_helper.matrix import MatrixHelperEntity
 
 
-def test_entity_initial_state_and_attributes(matrix_config_entry):
-    entity = MatrixHelperEntity(matrix_config_entry)
+def test_entity_initial_state_and_attributes(matrix_entity):
+    entity = matrix_entity
 
     assert entity.unique_id == "test_entry_id"
     assert entity.name == "Climate Profiles"
@@ -29,8 +28,8 @@ def test_entity_initial_state_and_attributes(matrix_config_entry):
     }
 
 
-def test_entity_state_is_iso_timestamp(matrix_config_entry):
-    entity = MatrixHelperEntity(matrix_config_entry)
+def test_entity_state_is_iso_timestamp(matrix_entity):
+    entity = matrix_entity
 
     # A valid ISO 8601 timestamp round-trips through fromisoformat.
     datetime.fromisoformat(entity.state)

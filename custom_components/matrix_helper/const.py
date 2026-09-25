@@ -23,3 +23,7 @@ ATTR_VALUES = "values"
 SERVICE_SET_CELL = "set_cell"
 SERVICE_SET_ROW = "set_row"
 SERVICE_SET_COLUMN = "set_column"
+
+STORAGE_VERSION = 1
+# Batches bursts of edits (e.g. a script setting many cells) into one write.
+STORAGE_SAVE_DELAY = 1
