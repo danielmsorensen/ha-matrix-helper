@@ -42,12 +42,24 @@ class MatrixHelperEntity(RestoreEntity):
         return self._last_modified
 
     @property
+    def data(self) -> dict[str, dict[str, float | None]]:
+        """Return a copy of the cell data."""
+        return {row: dict(values) for row, values in self._data.items()}
+
+    @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        """Return the matrix schema and data."""
+        """
+        Return the matrix schema and data.
+
+        `data` must be a fresh copy: HA keeps a reference to it in the State
+        object, so handing over the live dicts would make every later edit
+        rewrite previous states too (breaking trigger.from_state and the
+        frontend's state diffs).
+        """
         return {
             ATTR_ROWS: self.rows,
             ATTR_COLUMNS: self.columns,
-            ATTR_DATA: self._data,
+            ATTR_DATA: self.data,
         }
 
     def _touch(self) -> None:
