@@ -48,6 +48,11 @@ class MatrixHelperEntity(RestoreEntity):
 
     _attr_should_poll = False
     _attr_icon = "mdi:matrix"
+    # The whole matrix changes on every edit; keep it out of the recorder so
+    # large matrices don't bloat the database or trip its attribute size cap.
+    _unrecorded_attributes = frozenset(
+        {ATTR_ROWS, ATTR_COLUMNS, ATTR_ROW_LABELS, ATTR_COLUMN_LABELS, ATTR_DATA}
+    )
 
     def __init__(self, entry: ConfigEntry, store: Store[dict[str, Any]]) -> None:
         """Build the matrix schema and blank cell data from a config entry."""

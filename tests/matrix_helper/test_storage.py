@@ -1,4 +1,4 @@
-"""Tests for persistence across restarts, reloads and removal."""
+"""Tests for persistence, reload/removal and recorder exclusion."""
 
 from __future__ import annotations
 
@@ -114,3 +114,10 @@ async def test_removing_entry_deletes_storage(
 
     assert STORAGE_KEY not in hass_storage
     assert hass.states.get(ENTITY_ID) is None
+
+
+@pytest.mark.usefixtures("loaded_entry")
+async def test_matrix_attributes_are_excluded_from_recorder(hass):
+    unrecorded = hass.states.get(ENTITY_ID).state_info["unrecorded_attributes"]
+
+    assert {"data", "rows", "columns", "row_labels", "column_labels"} <= unrecorded
