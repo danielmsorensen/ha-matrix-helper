@@ -13,6 +13,8 @@ CONF_COLUMNS = "columns"
 
 ATTR_ROWS = "rows"
 ATTR_COLUMNS = "columns"
+ATTR_ROW_LABELS = "row_labels"
+ATTR_COLUMN_LABELS = "column_labels"
 ATTR_DATA = "data"
 
 ATTR_ROW = "row"

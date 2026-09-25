@@ -6,7 +6,13 @@ from datetime import datetime
 
 from homeassistant.helpers import entity_registry as er
 
-from custom_components.matrix_helper.const import ATTR_COLUMNS, ATTR_DATA, ATTR_ROWS
+from custom_components.matrix_helper.const import (
+    ATTR_COLUMN_LABELS,
+    ATTR_COLUMNS,
+    ATTR_DATA,
+    ATTR_ROW_LABELS,
+    ATTR_ROWS,
+)
 
 
 def test_entity_initial_state_and_attributes(matrix_entity):
@@ -21,6 +27,8 @@ def test_entity_initial_state_and_attributes(matrix_entity):
     attrs = entity.extra_state_attributes
     assert attrs[ATTR_ROWS] == ["comfort", "eco", "sleep"]
     assert attrs[ATTR_COLUMNS] == ["living_room", "office"]
+    assert attrs[ATTR_ROW_LABELS] == ["Comfort", "Eco", "Sleep"]
+    assert attrs[ATTR_COLUMN_LABELS] == ["Living Room", "Office"]
     assert attrs[ATTR_DATA] == {
         "comfort": {"living_room": None, "office": None},
         "eco": {"living_room": None, "office": None},

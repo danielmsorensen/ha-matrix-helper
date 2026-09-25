@@ -12,8 +12,10 @@ from homeassistant.util import dt as dt_util
 from homeassistant.util import slugify
 
 from .const import (
+    ATTR_COLUMN_LABELS,
     ATTR_COLUMNS,
     ATTR_DATA,
+    ATTR_ROW_LABELS,
     ATTR_ROWS,
     CONF_COLUMNS,
     CONF_ROWS,
@@ -52,10 +54,10 @@ class MatrixHelperEntity(RestoreEntity):
         self._store = store
         self._attr_unique_id = entry.entry_id
         self._attr_name = entry.options[CONF_NAME]
-        self.rows: list[str] = [slugify(row) for row in entry.options[CONF_ROWS]]
-        self.columns: list[str] = [
-            slugify(column) for column in entry.options[CONF_COLUMNS]
-        ]
+        self.row_labels: list[str] = list(entry.options[CONF_ROWS])
+        self.column_labels: list[str] = list(entry.options[CONF_COLUMNS])
+        self.rows: list[str] = [slugify(label) for label in self.row_labels]
+        self.columns: list[str] = [slugify(label) for label in self.column_labels]
         self._data: MatrixData = {row: dict.fromkeys(self.columns) for row in self.rows}
         self._last_modified: str = dt_util.utcnow().isoformat()
 
@@ -82,6 +84,8 @@ class MatrixHelperEntity(RestoreEntity):
         return {
             ATTR_ROWS: self.rows,
             ATTR_COLUMNS: self.columns,
+            ATTR_ROW_LABELS: self.row_labels,
+            ATTR_COLUMN_LABELS: self.column_labels,
             ATTR_DATA: self.data,
         }
 
