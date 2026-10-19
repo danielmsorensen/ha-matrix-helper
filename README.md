@@ -14,6 +14,8 @@ thresholds per hour and day, …) fits.
 For editing values on a dashboard, install the companion card,
 **[Matrix Helper Card](https://github.com/danielmsorensen/ha-matrix-helper-card)**.
 
+![A matrix of climate profiles (rows) by rooms (columns), shown in the Matrix Helper Card](https://raw.githubusercontent.com/danielmsorensen/ha-matrix-helper/main/docs/images/card.png)
+
 ## Installation
 
 ### HACS (recommended)
@@ -37,6 +39,8 @@ Settings → Devices & services → **Helpers** → **Create helper** → **Matr
 Give it a name, then type each row and column label and press Enter to add it.
 There's no limit on the number of rows or columns.
 
+![The Matrix Helper setup form, with a name field and row and column label lists](https://raw.githubusercontent.com/danielmsorensen/ha-matrix-helper/main/docs/images/create-helper.png)
+
 Each matrix becomes one entity, e.g. `matrix_helper.climate_profiles`. All cells
 start empty.
 
@@ -49,6 +53,8 @@ want to change. Add, remove or reorder labels:
 - A removed label's cells are discarded; a new label's cells start empty.
 - Changing a label's text counts as removing the old one and adding a new one, so
   its values are not carried over.
+
+![The options dialog for an existing matrix, listing its row and column labels](https://raw.githubusercontent.com/danielmsorensen/ha-matrix-helper/main/docs/images/options.png)
 
 ## The entity
 
