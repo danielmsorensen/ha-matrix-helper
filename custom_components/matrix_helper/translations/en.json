@@ -10,8 +10,8 @@
         },
         "data_description": {
           "name": "A name for this matrix, e.g. \"Climate Profiles\".",
-          "rows": "Row labels, e.g. \"Comfort\", \"Eco\", \"Sleep\" -- type a label and press Enter to add it.",
-          "columns": "Column labels, e.g. \"Living Room\", \"Office\", \"Bedroom\" -- type a label and press Enter to add it."
+          "rows": "Row labels, e.g. \"Comfort\", \"Eco\", \"Sleep\". Type a label and press Enter to add it.",
+          "columns": "Column labels, e.g. \"Living Room\", \"Office\", \"Bedroom\". Type a label and press Enter to add it."
         }
       }
     },
@@ -25,14 +25,14 @@
   "options": {
     "step": {
       "init": {
-        "description": "Edit this matrix's rows and columns. A label not in the new list is removed (its data is discarded); a new label starts at null.",
+        "description": "Add, remove or reorder this matrix's rows and columns. Removing a label deletes its values, and a new label's cells start empty. Renaming a label counts as removing it and adding a new one.",
         "data": {
           "rows": "Rows",
           "columns": "Columns"
         },
         "data_description": {
-          "rows": "Row labels, e.g. \"Comfort\", \"Eco\", \"Sleep\" -- type a label and press Enter to add it. A label not in this list is removed (its data is discarded); a new label starts at null.",
-          "columns": "Column labels, e.g. \"Living Room\", \"Office\", \"Bedroom\" -- type a label and press Enter to add it. A label not in this list is removed (its data is discarded); a new label starts at null."
+          "rows": "Type a label and press Enter to add it.",
+          "columns": "Type a label and press Enter to add it."
         }
       }
     },
