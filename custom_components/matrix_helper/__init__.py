@@ -13,6 +13,7 @@ from homeassistant.helpers.entity_component import EntityComponent
 from homeassistant.helpers.storage import Store
 from homeassistant.util.hass_dict import HassKey
 
+from .card import async_register_card, async_unregister_card
 from .const import (
     ATTR_AMOUNT,
     ATTR_COLUMN,
@@ -129,6 +130,7 @@ async def async_setup_entry(
     if entity.entity_id in registry.entities:
         registry.async_update_entity(entity.entity_id, config_entry_id=entry.entry_id)
 
+    await async_register_card(hass)
     return True
 
 
@@ -141,5 +143,7 @@ async def async_unload_entry(
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Delete a removed matrix's stored data."""
+    """Delete a removed matrix's stored data, and the card with the last matrix."""
     await _store(hass, entry).async_remove()
+    if not hass.config_entries.async_entries(DOMAIN):
+        await async_unregister_card(hass)

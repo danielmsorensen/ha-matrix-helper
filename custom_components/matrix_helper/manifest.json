@@ -1,8 +1,10 @@
 {
   "domain": "matrix_helper",
   "name": "Matrix Helper",
+  "after_dependencies": ["frontend", "lovelace"],
   "codeowners": ["@danielmsorensen"],
   "config_flow": true,
+  "dependencies": ["http"],
   "documentation": "https://github.com/danielmsorensen/ha-matrix-helper",
   "integration_type": "helper",
   "iot_class": "calculated",
