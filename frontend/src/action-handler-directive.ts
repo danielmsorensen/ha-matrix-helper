@@ -24,6 +24,7 @@
 // ActionHandlerOptions type ({hasHold?, hasDoubleClick?} only).
 import { ActionHandlerOptions, fireEvent } from "custom-card-helpers";
 import { directive, Directive, ElementPart, PartInfo } from "lit/directive.js";
+import { defineOnce } from "./define-once";
 
 const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
@@ -211,7 +212,7 @@ class ActionHandler extends HTMLElement {
   }
 }
 
-customElements.define("matrix-helper-card-action-handler", ActionHandler);
+defineOnce("matrix-helper-card-action-handler", ActionHandler);
 
 const getActionHandler = (): ActionHandler => {
   const body = document.body;

@@ -1,9 +1,10 @@
 import { LitElement, html, PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { HomeAssistant, LovelaceCardEditor, fireEvent } from "custom-card-helpers";
 import type { MatrixHelperCardConfig } from "./types";
 import { DOMAIN } from "./types";
 import { ensureHaFormComponentsLoaded } from "./ha-components-loader";
+import { defineOnce } from "./define-once";
 
 // Restricts the Tap/Hold/Double-Tap pickers to a deliberately small set of
 // action types -- "Call a service" and the other ActionConfig variants are
@@ -86,7 +87,6 @@ const SCHEMA = [
   },
 ] as const;
 
-@customElement("matrix-helper-card-editor")
 export class MatrixHelperCardEditor extends LitElement implements LovelaceCardEditor {
   @property({ attribute: false }) public hass?: HomeAssistant;
 
@@ -148,6 +148,8 @@ export class MatrixHelperCardEditor extends LitElement implements LovelaceCardEd
     fireEvent(this, "config-changed", { config: ev.detail.value });
   }
 }
+
+defineOnce("matrix-helper-card-editor", MatrixHelperCardEditor);
 
 declare global {
   interface HTMLElementTagNameMap {

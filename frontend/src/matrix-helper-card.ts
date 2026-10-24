@@ -1,5 +1,5 @@
 import { LitElement, html, css, nothing, PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import {
   HomeAssistant,
@@ -14,6 +14,7 @@ import { deslugify } from "./deslugify";
 import { actionHandler } from "./action-handler-directive";
 import { ensureHaFormComponentsLoaded } from "./ha-components-loader";
 import "./matrix-helper-card-editor";
+import { defineOnce } from "./define-once";
 
 // hass.formatEntityName() is the real function every built-in card uses to
 // interpret a "name" config value written by the entity_name selector
@@ -99,7 +100,6 @@ function computeIconColor(color: string | undefined): string | undefined {
   return computeCssColor(color);
 }
 
-@customElement("matrix-helper-card")
 export class MatrixHelperCard extends LitElement {
   @property({ attribute: false }) public hass?: HomeAssistant;
 
@@ -656,16 +656,20 @@ declare global {
   }
 }
 
+defineOnce("matrix-helper-card", MatrixHelperCard);
+
 window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "matrix-helper-card",
-  name: "Matrix Helper Card",
-  description: "An editable grid for a Matrix Helper entity.",
-  preview: true,
-  getEntitySuggestion: (_hass: HomeAssistant, entityId: string) => {
-    if (computeDomain(entityId) !== DOMAIN) {
-      return null;
-    }
-    return { config: { type: "custom:matrix-helper-card", entity: entityId } };
-  },
-});
+if (!window.customCards.some((card) => card.type === "matrix-helper-card")) {
+  window.customCards.push({
+    type: "matrix-helper-card",
+    name: "Matrix Helper Card",
+    description: "An editable grid for a Matrix Helper entity.",
+    preview: true,
+    getEntitySuggestion: (_hass: HomeAssistant, entityId: string) => {
+      if (computeDomain(entityId) !== DOMAIN) {
+        return null;
+      }
+      return { config: { type: "custom:matrix-helper-card", entity: entityId } };
+    },
+  });
+}
