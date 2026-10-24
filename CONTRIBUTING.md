@@ -44,24 +44,24 @@ People *love* thorough bug reports. I'm not even kidding.
 
 ## Use a Consistent Coding Style
 
-Run `scripts/lint` (`ruff format`/`ruff check --fix`) before submitting.
+Run `scripts/lint` (`ruff format`/`ruff check --fix`, and ESLint for the card) before
+submitting.
 
 ## Test your code modification
 
-- `scripts/setup` — install dependencies
+- `scripts/setup` — install dependencies (the card's need Node.js)
 - `scripts/develop` — run a local Home Assistant instance with this integration loaded,
   using the included [`configuration.yaml`](./config/configuration.yaml)
-- `scripts/lint` — run `ruff format`/`ruff check --fix`
+- `scripts/lint` — run `ruff format`/`ruff check --fix` and the card's ESLint
+- `scripts/build-card` — rebuild the card's bundle after changing anything in
+  `frontend/`, and commit it with your change
 - `pytest` — run the test suite
 
 The test suite and `scripts/develop` require a POSIX environment (Home Assistant core has
 POSIX-only dependencies) — on Windows, run them via WSL2.
 
-Contributing to the Lovelace card? See
-[ha-matrix-helper-card](https://github.com/danielmsorensen/ha-matrix-helper-card), a
-separate repository. For a change that touches both repos, see this README's
-[Developing against the Lovelace card](./README.md#developing-against-the-lovelace-card)
-section for the two-repo testing workflow.
+For changes to the dashboard card, see the README's
+[Working on the card](./README.md#working-on-the-card) section.
 
 ## License
 

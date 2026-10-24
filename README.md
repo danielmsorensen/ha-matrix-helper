@@ -11,8 +11,8 @@ you maintaining dozens of `input_number` helpers. It's deliberately generic, tho
 anything that's naturally a lookup table (lighting levels per scene and room, price
 thresholds per hour and day, …) fits.
 
-For editing values on a dashboard, install the companion card,
-**[Matrix Helper Card](https://github.com/danielmsorensen/ha-matrix-helper-card)**.
+It comes with a dashboard card for editing the values, ready to use as soon as the
+integration is installed.
 
 ![A matrix of climate profiles (rows) by rooms (columns), shown in the Matrix Helper Card](https://raw.githubusercontent.com/danielmsorensen/ha-matrix-helper/main/docs/images/card.png)
 
@@ -22,9 +22,11 @@ For editing values on a dashboard, install the companion card,
 
 [![Open your Home Assistant instance and open this repository inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=danielmsorensen&repository=ha-matrix-helper&category=integration)
 
-Or manually: HACS → ⋮ → **Custom repositories** → add
-`https://github.com/danielmsorensen/ha-matrix-helper` with type **Integration**.
-Then download **Matrix Helper** and restart Home Assistant.
+Search for **Matrix Helper** in HACS, download it, and restart Home Assistant.
+
+If it isn't listed yet, add it as a custom repository first: HACS → ⋮ →
+**Custom repositories** → add `https://github.com/danielmsorensen/ha-matrix-helper`
+with type **Integration**.
 
 ### Manual
 
@@ -55,6 +57,34 @@ want to change. Add, remove or reorder labels:
   its values are not carried over.
 
 ![The options dialog for an existing matrix, listing its row and column labels](https://raw.githubusercontent.com/danielmsorensen/ha-matrix-helper/main/docs/images/options.png)
+
+## Dashboard card
+
+The integration includes a card for editing a matrix on a dashboard, and adds it to
+your dashboard resources itself. There's nothing else to install.
+
+Edit a dashboard → **Add card** → search for **Matrix Helper**. It's also suggested
+when you add a card for a matrix entity. Or in YAML:
+
+```yaml
+type: custom:matrix-helper-card
+entity: matrix_helper.climate_profiles
+```
+
+- **Editing:** type a value in any cell and press Enter, or click away. Empty a cell to
+  clear it, or press Escape to cancel. Both `21.5` and `21,5` work.
+- **Any size:** a large matrix scrolls inside the card, with its row and column labels
+  kept in view. In sections dashboards, set a fixed height from the card's **Layout**
+  tab and the grid scrolls within it.
+- **The usual options:** name, icon, colour and secondary information, plus tap, hold
+  and double-tap actions (More info by default), all from the visual editor.
+
+![The card's visual editor, with Content and Interactions sections beside a live preview](https://raw.githubusercontent.com/danielmsorensen/ha-matrix-helper/main/docs/images/card-editor.png)
+
+**Upgrading from the separate Matrix Helper Card?** The card used to be its own HACS
+download. It's now built in, so remove the old one in HACS: open **Matrix Helper
+Card**, then ⋮ → **Remove**. Home Assistant shows a repair notice until you do. Your
+existing cards keep working without changes.
 
 ## The entity
 
@@ -190,28 +220,23 @@ sequence:
 
 ## Development
 
-- `scripts/setup` — install dependencies
+- `scripts/setup` — install dependencies (Python, plus the card's, which need Node.js)
 - `scripts/develop` — run a local Home Assistant instance with this integration loaded
-- `scripts/lint` — run `ruff format`/`ruff check --fix`
+- `scripts/lint` — run `ruff format`/`ruff check --fix` and the card's ESLint
+- `scripts/build-card` — type-check the card and build its bundle into
+  `custom_components/matrix_helper/www/`
+- `scripts/watch-card` — rebuild the card on every save
 - `pytest` — run the test suite
 
 The test suite and `scripts/develop` need a POSIX environment (Home Assistant core has
 POSIX-only dependencies) — on Windows, use WSL2.
 
-### Developing against the Lovelace card
+### Working on the card
 
-Changing something both this integration and the card depend on (e.g. an entity
-attribute) means testing both repos together:
+The card's source is in `frontend/` (TypeScript and Lit). Its built bundle is committed
+in `custom_components/matrix_helper/www/`, because that's what the integration serves:
+after changing the card, run `scripts/build-card` and commit the bundle with your
+change. CI fails if the two don't match.
 
-1. `scripts/develop` here to start a local Home Assistant instance, and add the card as a
-   dashboard resource once (see
-   [ha-matrix-helper-card's README](https://github.com/danielmsorensen/ha-matrix-helper-card#manual)).
-2. In a sibling checkout of
-   [ha-matrix-helper-card](https://github.com/danielmsorensen/ha-matrix-helper-card), run
-   `scripts/watch` to rebuild the card on save, then `scripts/link-local` after each
-   change to copy the build into this repo's `config/www/`.
-3. Hard-refresh (Ctrl+F5) the dashboard after each `link-local` — Home Assistant does not
-   auto-bust the cache for manually added `/local/` resources.
-
-There's no automation bridging the two repos beyond that — they're versioned and
-released independently.
+With `scripts/develop` running, `scripts/watch-card` rebuilds the bundle on every save;
+hard-refresh the dashboard (Ctrl+F5) to load it.
