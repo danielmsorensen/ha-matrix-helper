@@ -13,6 +13,11 @@
       "description": "Home Assistant should match the homeassistant key in hacs.json",
       "matchPackageNames": ["homeassistant"],
       "enabled": false
+    },
+    {
+      "description": "The frontend package must match the version homeassistant requires",
+      "matchPackageNames": ["home-assistant-frontend"],
+      "enabled": false
     }
   ]
 }
