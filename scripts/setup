@@ -8,3 +8,6 @@ cd "$(dirname "$0")/.."
 # before the rest of the dependencies are installed.
 python3 -m pip install --requirement requirements_common.txt
 python3 -m pip install --requirement requirements_dev.txt
+
+# The dashboard card's build tooling (needs Node.js).
+(cd frontend && npm ci)

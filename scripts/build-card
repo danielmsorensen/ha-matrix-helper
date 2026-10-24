@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -e
+
+cd "$(dirname "$0")/../frontend"
+
+# Type-checks the card and writes the bundle the integration serves, to
+# custom_components/matrix_helper/www/. Commit the result: CI fails if the
+# committed bundle doesn't match the source.
+npm run build

@@ -1,11 +1,10 @@
 {
   "name": "matrix-helper-card",
-  "version": "1.0.5",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc --noEmit && esbuild src/matrix-helper-card.ts --bundle --minify --format=esm --outfile=dist/matrix-helper-card.js",
-    "watch": "esbuild src/matrix-helper-card.ts --bundle --minify --format=esm --outfile=dist/matrix-helper-card.js --watch",
+    "build": "tsc --noEmit && esbuild src/matrix-helper-card.ts --bundle --minify --format=esm --outfile=../custom_components/matrix_helper/www/matrix-helper-card.js",
+    "watch": "esbuild src/matrix-helper-card.ts --bundle --minify --format=esm --outfile=../custom_components/matrix_helper/www/matrix-helper-card.js --watch",
     "lint": "eslint src"
   },
   "dependencies": {

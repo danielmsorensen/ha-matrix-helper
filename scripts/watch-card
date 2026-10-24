@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -e
+
+cd "$(dirname "$0")/../frontend"
+
+# Rebuilds the card's bundle on every save (skipping the type-check
+# scripts/build-card does). With scripts/develop running, hard-refresh the
+# dashboard (Ctrl+F5) to load the new build.
+npm run watch
