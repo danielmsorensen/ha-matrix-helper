@@ -24,10 +24,6 @@ integration is installed.
 
 Search for **Matrix Helper** in HACS, download it, and restart Home Assistant.
 
-If it isn't listed yet, add it as a custom repository first: HACS → ⋮ →
-**Custom repositories** → add `https://github.com/danielmsorensen/ha-matrix-helper`
-with type **Integration**.
-
 ### Manual
 
 Copy `custom_components/matrix_helper` into your Home Assistant `config/custom_components/`
