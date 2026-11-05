@@ -7,7 +7,7 @@ export interface MatrixHelperStateObj {
   attributes: {
     rows?: string[];
     columns?: string[];
-    // The labels as originally typed, parallel to rows/columns.
+    // Absent while unavailable. Labels as typed, parallel to rows/columns.
     row_labels?: string[];
     column_labels?: string[];
     data?: Record<string, Record<string, number | null>>;

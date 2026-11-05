@@ -97,11 +97,9 @@ export class MatrixHelperCard extends LitElement {
 
   static styles = css`
     /* height: 100% + the flex column chain below lets .table-wrapper fill
-       whatever height the sections view's per-card "Rows" control (see
-       getGridOptions()) assigns -- same pattern as HA's own map card. With
-       no explicit row count (the default, and always the case in masonry
-       view), height: 100% resolves against an auto-sized ancestor and is a
-       no-op, so the card still just sizes to its content as before. */
+       the height the sections view's "Rows" control assigns (see
+       getGridOptions()). Without one (masonry, or rows unset) it's a no-op
+       and the card sizes to its content. */
     ha-card {
       position: relative;
       height: 100%;

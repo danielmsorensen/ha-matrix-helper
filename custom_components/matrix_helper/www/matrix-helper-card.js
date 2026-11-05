@@ -10,11 +10,9 @@ var Ve=Object.defineProperty;var je=Object.getOwnPropertyDescriptor;var $=(i,e,t
       ></ha-form>
     `}_valueChanged(t){p(this,"config-changed",{config:t.detail.value})}};$([T({attribute:!1})],j.prototype,"hass",2),$([z()],j.prototype,"config",2);D("matrix-helper-card-editor",j);function _e(i,e){return`${i}:${e}`}function _t(i){let e=i.trim();if(e==="")return null;let t=Number(e.replace(",","."));return Number.isFinite(t)?t:void 0}function Be(i,e){let t=_t(i);return t===void 0?{kind:"invalid",input:i.trim()}:t===e?{kind:"noop"}:{kind:"set",value:t}}var vt=new Set(["primary","accent","red","pink","purple","deep-purple","indigo","blue","light-blue","cyan","teal","green","light-green","lime","yellow","amber","orange","deep-orange","brown","light-grey","grey","dark-grey","blue-grey","black","white"]);function bt(i){return vt.has(i)?`var(--${i}-color)`:i}function wt(i){if(!(!i||i==="state"||i==="none"))return bt(i)}var P=class extends y{constructor(){super(...arguments);this._drafts=new Map;this._componentsRequested=!1;this._resizeObserver=new ResizeObserver(()=>this._syncPanes());this._observedBody=null;this._syncPanes=()=>{let t=this.renderRoot,r=t.querySelector(".body");r&&(t.querySelector(".grid").style.setProperty("--scrollbar-width",`${r.offsetWidth-r.clientWidth}px`),t.querySelector(".column-track").style.transform=`translateX(${-r.scrollLeft}px)`,t.querySelector(".row-track").style.transform=`translateY(${-r.scrollTop}px)`)};this._scrollbarPressed=!1}static{this.styles=re`
     /* height: 100% + the flex column chain below lets .table-wrapper fill
-       whatever height the sections view's per-card "Rows" control (see
-       getGridOptions()) assigns -- same pattern as HA's own map card. With
-       no explicit row count (the default, and always the case in masonry
-       view), height: 100% resolves against an auto-sized ancestor and is a
-       no-op, so the card still just sizes to its content as before. */
+       the height the sections view's "Rows" control assigns (see
+       getGridOptions()). Without one (masonry, or rows unset) it's a no-op
+       and the card sizes to its content. */
     ha-card {
       position: relative;
       height: 100%;
