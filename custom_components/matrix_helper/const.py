@@ -30,10 +30,6 @@ SERVICE_SET_VALUES = "set_values"
 SERVICE_FILL = "fill"
 SERVICE_ADJUST = "adjust"
 
-# The dashboard card bundled in www/, served by the integration itself.
-CARD_FILENAME = "matrix-helper-card.js"
-CARD_URL_BASE = f"/{DOMAIN}"
-
 STORAGE_VERSION = 1
 # Batches bursts of edits (e.g. a script setting many cells) into one write.
 STORAGE_SAVE_DELAY = 1

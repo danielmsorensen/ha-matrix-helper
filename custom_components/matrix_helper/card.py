@@ -10,25 +10,22 @@ from __future__ import annotations
 
 import hashlib
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from homeassistant.components.frontend import add_extra_js_url, remove_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.components.lovelace.const import LOVELACE_DATA, MODE_STORAGE
 from homeassistant.util.hass_dict import HassKey
 
-from .const import (
-    CARD_FILENAME,
-    CARD_URL_BASE,
-    DOMAIN,
-    LOGGER,
-)
+from .const import DOMAIN, LOGGER
 
 if TYPE_CHECKING:
     from homeassistant.components.lovelace.resources import ResourceStorageCollection
     from homeassistant.core import HomeAssistant
 
 WWW_DIR = Path(__file__).parent / "www"
+CARD_FILENAME = "matrix-helper-card.js"
+CARD_URL_BASE = f"/{DOMAIN}"
 CARD_PATH = f"{CARD_URL_BASE}/{CARD_FILENAME}"
 DATA_CARD_URL: HassKey[str] = HassKey(f"{DOMAIN}_card_url")
 # A static path can only be registered once per run, even if the resource
@@ -46,19 +43,15 @@ def _is_card(url: str) -> bool:
     return url.split("?", 1)[0] == CARD_PATH
 
 
-def _storage_resources(hass: HomeAssistant) -> ResourceStorageCollection | None:
-    """Return the editable dashboard resources, or None in YAML mode."""
+async def _storage_resources(
+    hass: HomeAssistant,
+) -> ResourceStorageCollection | None:
+    """Return the loaded, editable dashboard resources, or None in YAML mode."""
     lovelace = hass.data.get(LOVELACE_DATA)
     if lovelace is None or lovelace.resource_mode != MODE_STORAGE:
         return None
-    return lovelace.resources  # type: ignore[return-value]
-
-
-async def _resource_items(hass: HomeAssistant) -> list[dict[str, Any]]:
-    if (lovelace := hass.data.get(LOVELACE_DATA)) is None:
-        return []
     await lovelace.resources.async_get_info()  # loads storage-mode resources
-    return list(lovelace.resources.async_items())
+    return lovelace.resources  # type: ignore[return-value]
 
 
 async def async_register_card(hass: HomeAssistant) -> None:
@@ -73,8 +66,8 @@ async def async_register_card(hass: HomeAssistant) -> None:
         )
         hass.data[DATA_CARD_SERVED] = True
 
-    if (resources := _storage_resources(hass)) is not None:
-        ours = [item for item in await _resource_items(hass) if _is_card(item["url"])]
+    if (resources := await _storage_resources(hass)) is not None:
+        ours = [item for item in resources.async_items() if _is_card(item["url"])]
         if not ours:
             await resources.async_create_item({"res_type": "module", "url": url})
             LOGGER.info("Registered the Matrix Helper Card dashboard resource")
@@ -94,10 +87,10 @@ async def async_unregister_card(hass: HomeAssistant) -> None:
     """Remove the card's dashboard resource (the static path stays until restart)."""
     if (url := hass.data.pop(DATA_CARD_URL, None)) is None:
         return
-    if (resources := _storage_resources(hass)) is None:
+    if (resources := await _storage_resources(hass)) is None:
         if "frontend" in hass.config.components:
             remove_extra_js_url(hass, url)
         return
-    for item in await _resource_items(hass):
+    for item in resources.async_items():
         if _is_card(item["url"]):
             await resources.async_delete_item(item["id"])
