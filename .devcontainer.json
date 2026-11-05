@@ -42,6 +42,9 @@
         },
         "ghcr.io/devcontainers/features/node:1": {
             "version": "24"
+        },
+        "ghcr.io/devcontainers-extra/features/apt-packages:1": {
+            "packages": "libturbojpeg0"
         }
     }
 }
