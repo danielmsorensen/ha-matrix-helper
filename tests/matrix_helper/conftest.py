@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 from homeassistant.const import CONF_NAME
 from homeassistant.helpers.storage import Store
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.matrix_helper.const import (
     CONF_COLUMNS,
@@ -16,12 +16,6 @@ from custom_components.matrix_helper.const import (
 from custom_components.matrix_helper.matrix import MatrixHelperEntity
 
 ENTITY_ID = "matrix_helper.climate_profiles"
-
-
-@pytest.fixture(autouse=True)
-def auto_enable_custom_integrations(enable_custom_integrations):
-    """Enable custom integration loading for every test in this package."""
-    return
 
 
 @pytest.fixture

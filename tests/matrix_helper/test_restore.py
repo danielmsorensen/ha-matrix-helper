@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from homeassistant.core import State
-from pytest_homeassistant_custom_component.common import mock_restore_cache
+from pytest_homeassistant.common import mock_restore_cache
 
 from custom_components.matrix_helper.const import ATTR_COLUMNS, ATTR_DATA, ATTR_ROWS
 
