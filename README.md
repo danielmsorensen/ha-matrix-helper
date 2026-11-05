@@ -93,8 +93,10 @@ on it fires whenever any cell changes. The table itself is in its attributes:
 | `column_labels` | `["Living Room", "Office"]`                    |
 | `data`          | `{"comfort": {"living_room": 21.0, "office": null}, ...}` |
 
-`rows`/`columns` are the **keys** — the labels in lowercase with spaces replaced by
-`_` (`Living Room` → `living_room`). Use keys when reading `data` in templates.
+`rows`/`columns` are the **keys** — the labels slugified: lowercase, accents and
+punctuation dropped, words joined by `_` (`Living Room` → `living_room`). Labels with
+the same key (`Living-Room`, `Living Room`) can't share a matrix. Use keys when reading
+`data` in templates.
 Every action accepts either the key or the original label.
 
 Values are stored as numbers (`21` becomes `21.0`); an empty cell is `null` in

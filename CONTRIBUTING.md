@@ -1,68 +1,24 @@
-# Contribution guidelines
+# Contributing
 
-Contributing to this project should be as easy and transparent as possible, whether it's:
+## Issues
 
-- Reporting a bug
-- Discussing the current state of the code
-- Submitting a fix
-- Proposing new features
+Report bugs and request features in [issues](../../issues/new/choose). For bugs, include
+your Home Assistant version, steps to reproduce, expected vs actual behaviour, and any
+relevant logs.
 
-## Github is used for everything
+## Pull requests
 
-Github is used to host code, to track issues and feature requests, as well as accept pull requests.
+1. Fork the repo and branch from `main`.
+2. Update the README if behaviour changes.
+3. Run `scripts/lint` and the tests (`pytest`; needs POSIX, so WSL2 on Windows).
+4. Open the pull request against `main`.
 
-Pull requests are the best way to propose changes to the codebase.
+The card's source is in `frontend/`. Its built bundle in
+`custom_components/matrix_helper/www/` is committed: rebuild it with `scripts/build-card`
+and commit it with your change. CI fails if they don't match.
 
-1. Fork the repo and create your branch from `main`.
-2. If you've changed something, update the documentation.
-3. Make sure your code lints (using `scripts/lint`).
-4. Test you contribution.
-5. Issue that pull request!
-
-## Any contributions you make will be under the MIT Software License
-
-In short, when you submit code changes, your submissions are understood to be under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers the project. Feel free to contact the maintainers if that's a concern.
-
-## Report bugs using Github's [issues](../../issues)
-
-GitHub issues are used to track public bugs.
-Report a bug by [opening a new issue](../../issues/new/choose); it's that easy!
-
-## Write bug reports with detail, background, and sample code
-
-**Great Bug Reports** tend to have:
-
-- A quick summary and/or background
-- Steps to reproduce
-  - Be specific!
-  - Give sample code if you can.
-- What you expected would happen
-- What actually happens
-- Notes (possibly including why you think this might be happening, or stuff you tried that didn't work)
-
-People *love* thorough bug reports. I'm not even kidding.
-
-## Use a Consistent Coding Style
-
-Run `scripts/lint` (`ruff format`/`ruff check --fix`, and ESLint for the card) before
-submitting.
-
-## Test your code modification
-
-- `scripts/setup` — install dependencies (the card's need Node.js)
-- `scripts/develop` — run a local Home Assistant instance with this integration loaded,
-  using the included [`configuration.yaml`](./config/configuration.yaml)
-- `scripts/lint` — run `ruff format`/`ruff check --fix` and the card's ESLint
-- `scripts/build-card` — rebuild the card's bundle after changing anything in
-  `frontend/`, and commit it with your change
-- `pytest` — run the test suite
-
-The test suite and `scripts/develop` require a POSIX environment (Home Assistant core has
-POSIX-only dependencies) — on Windows, run them via WSL2.
-
-For changes to the dashboard card, see the README's
-[Working on the card](./README.md#working-on-the-card) section.
+See the README's [Development](./README.md#development) section for all scripts.
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under its MIT License.
+Contributions are licensed under the project's [MIT License](./LICENSE).
