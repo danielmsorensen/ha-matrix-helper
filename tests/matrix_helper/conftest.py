@@ -16,6 +16,8 @@ from custom_components.matrix_helper.const import (
 from custom_components.matrix_helper.matrix import MatrixHelperEntity
 
 ENTITY_ID = "matrix_helper.climate_profiles"
+ENTRY_ID = "test_entry_id"
+STORAGE_KEY = f"{DOMAIN}.{ENTRY_ID}"
 
 
 @pytest.fixture
@@ -23,7 +25,7 @@ def matrix_config_entry() -> MockConfigEntry:
     """Return a MockConfigEntry for a small 3x2 matrix."""
     return MockConfigEntry(
         domain=DOMAIN,
-        entry_id="test_entry_id",
+        entry_id=ENTRY_ID,
         title="Climate Profiles",
         data={},
         options={
@@ -37,7 +39,7 @@ def matrix_config_entry() -> MockConfigEntry:
 @pytest.fixture
 def matrix_entity(hass, matrix_config_entry) -> MatrixHelperEntity:
     """Return a MatrixHelperEntity attached to hass but not added to it."""
-    store = Store(hass, STORAGE_VERSION, f"{DOMAIN}.{matrix_config_entry.entry_id}")
+    store = Store(hass, STORAGE_VERSION, STORAGE_KEY)
     entity = MatrixHelperEntity(matrix_config_entry, store)
     entity.hass = hass
     entity.entity_id = ENTITY_ID

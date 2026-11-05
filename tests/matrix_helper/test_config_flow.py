@@ -9,6 +9,8 @@ from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.matrix_helper.const import CONF_COLUMNS, CONF_ROWS, DOMAIN
 
+from .conftest import ENTITY_ID
+
 
 async def _start_flow(hass):
     return await hass.config_entries.flow.async_init(
@@ -160,7 +162,7 @@ async def test_options_flow_updates_rows_and_columns_preserving_matching_data(ha
         DOMAIN,
         "set_cell",
         {
-            "entity_id": "matrix_helper.climate_profiles",
+            "entity_id": ENTITY_ID,
             "row": "comfort",
             "column": "living_room",
             "value": 21.0,
@@ -183,7 +185,7 @@ async def test_options_flow_updates_rows_and_columns_preserving_matching_data(ha
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()
 
-    state = hass.states.get("matrix_helper.climate_profiles")
+    state = hass.states.get(ENTITY_ID)
     assert state.attributes["rows"] == ["comfort", "sleep"]
     assert state.attributes["columns"] == ["living_room", "bedroom"]
     assert state.attributes["data"]["comfort"]["living_room"] == 21.0  # preserved
@@ -195,19 +197,10 @@ async def test_options_flow_updates_rows_and_columns_preserving_matching_data(ha
     assert entry.options[CONF_NAME] == "Climate Profiles"
 
 
-async def test_options_flow_empty_rows_rejected(hass):
-    entry = MockConfigEntry(
-        domain=DOMAIN,
-        data={},
-        options={
-            CONF_NAME: "Climate Profiles",
-            CONF_ROWS: ["Comfort"],
-            CONF_COLUMNS: ["Living Room"],
-        },
-    )
-    entry.add_to_hass(hass)
+async def test_options_flow_empty_rows_rejected(hass, matrix_config_entry):
+    matrix_config_entry.add_to_hass(hass)
 
-    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_init(matrix_config_entry.entry_id)
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
         {CONF_ROWS: [], CONF_COLUMNS: ["Living Room"]},
@@ -217,19 +210,10 @@ async def test_options_flow_empty_rows_rejected(hass):
     assert result["errors"] == {"base": "rows_required"}
 
 
-async def test_options_flow_duplicate_rows_rejected(hass):
-    entry = MockConfigEntry(
-        domain=DOMAIN,
-        data={},
-        options={
-            CONF_NAME: "Climate Profiles",
-            CONF_ROWS: ["Comfort"],
-            CONF_COLUMNS: ["Living Room"],
-        },
-    )
-    entry.add_to_hass(hass)
+async def test_options_flow_duplicate_rows_rejected(hass, matrix_config_entry):
+    matrix_config_entry.add_to_hass(hass)
 
-    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_init(matrix_config_entry.entry_id)
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
         {CONF_ROWS: ["Comfort", "comfort"], CONF_COLUMNS: ["Living Room"]},
@@ -239,23 +223,16 @@ async def test_options_flow_duplicate_rows_rejected(hass):
     assert result["errors"] == {"base": "duplicate_rows"}
 
 
-async def test_options_flow_prefills_current_rows_and_columns(hass):
-    entry = MockConfigEntry(
-        domain=DOMAIN,
-        data={},
-        options={
-            CONF_NAME: "Climate Profiles",
-            CONF_ROWS: ["Comfort", "Eco"],
-            CONF_COLUMNS: ["Living Room"],
-        },
-    )
-    entry.add_to_hass(hass)
+async def test_options_flow_prefills_current_rows_and_columns(
+    hass, matrix_config_entry
+):
+    matrix_config_entry.add_to_hass(hass)
 
-    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_init(matrix_config_entry.entry_id)
 
     suggested = {
         field.schema: field.description["suggested_value"]
         for field in result["data_schema"].schema
     }
-    assert suggested[CONF_ROWS] == ["Comfort", "Eco"]
-    assert suggested[CONF_COLUMNS] == ["Living Room"]
+    assert suggested[CONF_ROWS] == ["Comfort", "Eco", "Sleep"]
+    assert suggested[CONF_COLUMNS] == ["Living Room", "Office"]

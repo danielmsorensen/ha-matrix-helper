@@ -12,6 +12,8 @@ from custom_components.matrix_helper.const import (
     SERVICE_SET_COLUMN,
 )
 
+from .conftest import ENTITY_ID
+
 
 async def test_set_cell_updates_value_and_timestamp(matrix_entity):
     entity = matrix_entity
@@ -64,16 +66,13 @@ async def test_set_row_unknown_column_raises(matrix_entity):
         await entity.async_set_row(row="comfort", values={"unknown": 1.0})
 
 
-async def test_set_cell_service_end_to_end(hass, matrix_config_entry):
-    matrix_config_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(matrix_config_entry.entry_id)
-    await hass.async_block_till_done()
-
+@pytest.mark.usefixtures("loaded_entry")
+async def test_set_cell_service_end_to_end(hass):
     await hass.services.async_call(
         DOMAIN,
         SERVICE_SET_CELL,
         {
-            "entity_id": "matrix_helper.climate_profiles",
+            "entity_id": ENTITY_ID,
             "row": "comfort",
             "column": "living_room",
             "value": 21.0,
@@ -81,7 +80,7 @@ async def test_set_cell_service_end_to_end(hass, matrix_config_entry):
         blocking=True,
     )
 
-    state = hass.states.get("matrix_helper.climate_profiles")
+    state = hass.states.get(ENTITY_ID)
     assert state.attributes["data"]["comfort"]["living_room"] == 21.0
 
 
@@ -154,21 +153,18 @@ async def test_set_row_atomic_on_unknown_column(matrix_entity):
     assert entity.extra_state_attributes[ATTR_DATA]["comfort"]["living_room"] is None
 
 
-async def test_set_column_service_end_to_end(hass, matrix_config_entry):
-    matrix_config_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(matrix_config_entry.entry_id)
-    await hass.async_block_till_done()
-
+@pytest.mark.usefixtures("loaded_entry")
+async def test_set_column_service_end_to_end(hass):
     await hass.services.async_call(
         DOMAIN,
         SERVICE_SET_COLUMN,
         {
-            "entity_id": "matrix_helper.climate_profiles",
+            "entity_id": ENTITY_ID,
             "column": "living_room",
             "values": {"comfort": 21.0},
         },
         blocking=True,
     )
 
-    state = hass.states.get("matrix_helper.climate_profiles")
+    state = hass.states.get(ENTITY_ID)
     assert state.attributes["data"]["comfort"]["living_room"] == 21.0

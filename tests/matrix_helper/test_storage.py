@@ -14,9 +14,7 @@ from pytest_homeassistant.components.diagnostics import (
 
 from custom_components.matrix_helper.const import DOMAIN, SERVICE_SET_CELL
 
-from .conftest import ENTITY_ID
-
-STORAGE_KEY = f"{DOMAIN}.test_entry_id"
+from .conftest import ENTITY_ID, STORAGE_KEY
 
 
 async def _set_office(hass, value: float) -> None:
