@@ -3,8 +3,7 @@ The dashboard card bundled with the integration (www/, built from frontend/).
 
 The integration serves the bundle from its own static path and registers it
 as a dashboard resource, so the card works as soon as the integration is
-set up: nothing is copied to config/www and no separate HACS download is
-needed.
+set up: nothing is copied to config/www and no separate download is needed.
 """
 
 from __future__ import annotations

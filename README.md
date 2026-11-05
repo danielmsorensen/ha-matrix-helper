@@ -18,11 +18,14 @@ integration is installed.
 
 ## Installation
 
-### HACS (recommended)
+Requires Home Assistant 2026.11 or later.
 
-[![Open your Home Assistant instance and open this repository inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=danielmsorensen&repository=ha-matrix-helper&category=integration)
+### Marketplace (recommended)
 
-Search for **Matrix Helper** in HACS, download it, and restart Home Assistant.
+[![Open your Home Assistant instance and open this repository in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=danielmsorensen&repository=ha-matrix-helper&category=integration)
+
+Settings → **Marketplace** → search for **Matrix Helper** → **Install**. No restart
+needed: Home Assistant goes straight to creating your first matrix.
 
 ### Manual
 
@@ -77,10 +80,10 @@ entity: matrix_helper.climate_profiles
 
 ![The card's visual editor, with Content and Interactions sections beside a live preview](https://raw.githubusercontent.com/danielmsorensen/ha-matrix-helper/main/docs/images/card-editor.png)
 
-**Upgrading from the separate Matrix Helper Card?** The card used to be its own HACS
-download. It's now built in, so remove the old one in HACS: open **Matrix Helper
-Card**, then ⋮ → **Remove**. Home Assistant shows a repair notice until you do. Your
-existing cards keep working without changes.
+**Upgrading from the separate Matrix Helper Card?** The card used to be its own
+download. It's now built in, so uninstall the old one: Settings → **Marketplace** →
+**Matrix Helper Card** → ⋮ → **Uninstall**. Home Assistant shows a repair notice
+until you do. Your existing cards keep working without changes.
 
 ## The entity
 
