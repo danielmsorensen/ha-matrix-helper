@@ -112,3 +112,46 @@ async def test_matrix_attributes_are_excluded_from_recorder(hass):
     unrecorded = hass.states.get(ENTITY_ID).state_info["unrecorded_attributes"]
 
     assert {"data", "rows", "columns", "row_labels", "column_labels"} <= unrecorded
+
+
+async def _load_stored(hass, entry, stored: dict[str, Any], hass_storage):
+    hass_storage[STORAGE_KEY] = {"version": 1, "key": STORAGE_KEY, "data": stored}
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    return hass.states.get(ENTITY_ID)
+
+
+async def test_stored_booleans_are_not_loaded_as_numbers(
+    hass, matrix_config_entry, hass_storage: dict[str, Any]
+):
+    # bool is an int subclass, so True/False would otherwise load as 1.0/0.0.
+    state = await _load_stored(
+        hass,
+        matrix_config_entry,
+        {"data": {"comfort": {"office": True, "living_room": False}}},
+        hass_storage,
+    )
+
+    assert state.attributes["data"]["comfort"] == {
+        "living_room": None,
+        "office": None,
+    }
+
+
+async def test_stored_non_dict_data_loads_as_empty_matrix(
+    hass, matrix_config_entry, hass_storage: dict[str, Any]
+):
+    state = await _load_stored(
+        hass,
+        matrix_config_entry,
+        {"data": ["not", "a", "dict"], "last_modified": "2026-02-02T00:00:00+00:00"},
+        hass_storage,
+    )
+
+    assert state.state == "2026-02-02T00:00:00+00:00"
+    assert all(
+        value is None
+        for row in state.attributes["data"].values()
+        for value in row.values()
+    )
