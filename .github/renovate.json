@@ -7,7 +7,6 @@
   "osvVulnerabilityAlerts": true,
   "dependencyDashboardOSVVulnerabilitySummary": "all",
   "timezone": "Europe/Berlin",
-  "customManagers": [],
   "packageRules": [
     {
       "description": "pytest-homeassistant pins Home Assistant, which should match the homeassistant minimum in hacs.json",
