@@ -15,10 +15,10 @@
         "vscode": {
             "extensions": [
                 "charliermarsh.ruff",
+                "dbaeumer.vscode-eslint",
                 "github.vscode-pull-request-github",
                 "ms-python.python",
-                "ms-python.vscode-pylance",
-                "ryanluker.vscode-coverage-gutters"
+                "ms-python.vscode-pylance"
             ],
             "settings": {
                 "files.eol": "\n",
@@ -40,8 +40,8 @@
         "ghcr.io/devcontainers/features/python:1": {
             "version": "3.14"
         },
-        "ghcr.io/devcontainers-extra/features/apt-packages:1": {
-            "packages": "ffmpeg,libturbojpeg0,libpcap-dev"
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "24"
         }
     }
 }
