@@ -33,8 +33,12 @@ SERVICE_ADJUST = "adjust"
 # The dashboard card bundled in www/, served by the integration itself.
 CARD_FILENAME = "matrix-helper-card.js"
 CARD_URL_BASE = f"/{DOMAIN}"
-# Where HACS served the card when it was a separate repository.
-LEGACY_CARD_URL_MARKER = "/hacsfiles/ha-matrix-helper-card/"
+# Where the card was served when it was a separate repository: HACS used
+# /hacsfiles, the Marketplace migrates those resources to /local/community.
+LEGACY_CARD_URL_MARKERS = (
+    "/hacsfiles/ha-matrix-helper-card/",
+    "/local/community/ha-matrix-helper-card/",
+)
 ISSUE_LEGACY_CARD = "legacy_card_installed"
 
 STORAGE_VERSION = 1

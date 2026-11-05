@@ -148,7 +148,7 @@
   "issues": {
     "legacy_card_installed": {
       "title": "Remove the separate Matrix Helper Card",
-      "description": "Matrix Helper now includes its dashboard card, so the separately installed Matrix Helper Card is no longer needed — and while it's installed, the card is loaded twice.\n\nRemove it in HACS: open **Matrix Helper Card**, then ⋮ → **Remove**. This also removes its dashboard resource (`{url}`). Your existing cards keep working unchanged, and this message disappears after the next restart."
+      "description": "Matrix Helper now includes its dashboard card, so the separately installed Matrix Helper Card is no longer needed — and while it's installed, the card is loaded twice.\n\nUninstall it in the Marketplace: go to **Settings** → **Marketplace**, open **Matrix Helper Card**, then ⋮ → **Uninstall**. This also removes its dashboard resource (`{url}`); if you manage dashboard resources in YAML, delete it there. Your existing cards keep working unchanged, and this message disappears after the next restart."
     }
   }
 }

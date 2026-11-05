@@ -24,7 +24,7 @@ from .const import (
     CARD_URL_BASE,
     DOMAIN,
     ISSUE_LEGACY_CARD,
-    LEGACY_CARD_URL_MARKER,
+    LEGACY_CARD_URL_MARKERS,
     LOGGER,
 )
 
@@ -97,7 +97,12 @@ async def async_register_card(hass: HomeAssistant) -> None:
     # The standalone card of earlier versions is now redundant (and loads a
     # second copy), so ask for it to be removed.
     if legacy := next(
-        (item for item in items if LEGACY_CARD_URL_MARKER in item["url"]), None
+        (
+            item
+            for item in items
+            if any(marker in item["url"] for marker in LEGACY_CARD_URL_MARKERS)
+        ),
+        None,
     ):
         ir.async_create_issue(
             hass,
