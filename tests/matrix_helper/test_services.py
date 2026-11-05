@@ -141,8 +141,7 @@ async def test_set_column_atomic_on_unknown_row(matrix_entity):
 
 
 async def test_set_row_atomic_on_unknown_column(matrix_entity):
-    """Regression test for a gap noted in the Phase 1 review: set_row's atomicity
-    was only tested with an all-bad-key dict, never a mixed valid/invalid one."""
+    """set_row with valid and unknown keys mixed applies nothing."""
     entity = matrix_entity
 
     with pytest.raises(ServiceValidationError):

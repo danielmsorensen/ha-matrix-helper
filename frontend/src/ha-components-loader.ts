@@ -51,13 +51,8 @@ export function ensureHaFormComponentsLoaded(hass: HomeAssistant): Promise<void>
       })) as ProbeCard;
       card.hass = hass;
 
-      // Calling the static getConfigElement() alone (as before) only
-      // dynamically imports the editor's module -- it registers whatever
-      // that module statically imports (ha-form, ha-expansion-panel,
-      // ha-alert) but never actually renders an editor instance, so nothing
-      // the *card itself* needs (ha-state-icon, used for this card's own
-      // header icon) gets pulled in. Render the real tile card too, briefly
-      // and hidden, so its module's own top-level imports register as well.
+      // Render a hidden tile card so its own imports (e.g. ha-state-icon for
+      // the header) register; getConfigElement() alone doesn't.
       card.style.display = "none";
       document.body.appendChild(card);
       await card.updateComplete;
@@ -66,17 +61,10 @@ export function ensureHaFormComponentsLoaded(hass: HomeAssistant): Promise<void>
       const ctor = card.constructor as { getConfigElement?: () => Promise<unknown> };
       await ctor.getConfigElement?.();
 
-      // The above only registers whatever the tile card editor's *module*
-      // statically imports at its top level (ha-form, ha-expansion-panel,
-      // ha-alert). ha-form's own per-selector-type components -- e.g.
-      // ha-selector-text, which pulls in ha-input (the current replacement
-      // for the now-removed ha-textfield) -- are only dynamically imported
-      // once a real <ha-form> instance actually renders with a schema that
-      // needs them, which the tile card's own schema never does for a plain
-      // text field (confirmed against its real source: no bare "text"
-      // selector anywhere in it). Render one ourselves, briefly and hidden,
-      // so this card's own text-selector usage (its grid cells) works
-      // reliably even on a page load that never opens the config editor.
+      // ha-form loads per-selector components (e.g. ha-selector-text ->
+      // ha-input) only when rendered with them, and the tile editor has no
+      // text selector. Render a hidden one so grid cells work without the
+      // editor ever opening.
       const probe = document.createElement("ha-form") as ProbeHaForm;
       probe.hass = hass;
       probe.data = {};

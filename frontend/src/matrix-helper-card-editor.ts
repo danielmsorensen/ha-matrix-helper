@@ -6,33 +6,12 @@ import { DOMAIN } from "./types";
 import { ensureHaFormComponentsLoaded } from "./ha-components-loader";
 import { defineOnce } from "./define-once";
 
-// Restricts the Tap/Hold/Double-Tap pickers to a deliberately small set of
-// action types -- "Call a service" and the other ActionConfig variants are
-// still fully supported at runtime by handleAction() if hand-edited into the
-// card's YAML -- this just isn't offered as an editor choice. This
-// restriction is a config option on the real ui_action selector, not
-// something filtered in our own code.
+// Action types offered in the editor; others still work if set in YAML.
 const ACTIONS = ["more-info", "navigate", "url", "none"] as const;
 
-// Schema-driven editor, handed entirely to <ha-form> -- matching how HA's
-// own built-in cards actually do this (verified directly against
-// home-assistant/frontend's hui-tile-card-editor.ts and
-// hui-generic-entity-row-editor.ts, not assumed): <ha-form> itself renders
-// the entity picker, the collapsible "Content"/"Interactions" sections,
-// the "Default (More info)"-style placeholder text, and the "+ Add
-// interaction" secondary-actions UI for Hold/Double-Tap (the real
-// "optional_actions" schema type) -- none of that is hand-rolled here.
-// Name/Icon/Colour mirror the Entities row editor's own Content layout
-// (verified against its real schema), since that fits this card better
-// than the Tile card's richer, single-entity-state focused version.
-// Secondary information uses ui_state_content -- the same entity-aware
-// selector Tile itself uses -- rather than a hand-copied option list: it
-// computes its own options from the entity's actual attributes/domain
-// (verified directly against ha-selector-ui-state-content.ts and
-// ha-entity-state-content-picker.ts), so it can never drift out of date
-// with what HA itself considers valid for this entity. Static (doesn't
-// depend on hass/config), so it's a module-level constant rather than
-// rebuilt every render.
+// Rendered entirely by <ha-form>, like HA's own card editors. Content mirrors
+// the Entities row editor; ui_state_content derives its options from the
+// entity, so they can't go stale.
 const SCHEMA = [
   { name: "entity", selector: { entity: { filter: { domain: DOMAIN } } } },
   {
@@ -128,15 +107,8 @@ export class MatrixHelperCardEditor extends LitElement implements LovelaceCardEd
     `;
   }
 
-  // "state_content" is labeled with the Entities row editor's own
-  // "Secondary information" string rather than Tile's "State content" --
-  // this card's actual entity state is the whole grid, not a single value,
-  // so "secondary information" describes what this field shows more
-  // accurately. The selector/component underneath (ui_state_content /
-  // state-display) is unchanged -- only the label differs; everything else
-  // here (entity, name, icon, color, tap_action, hold_action,
-  // double_tap_action, content, interactions) is a real generic label
-  // already used by other cards.
+  // "Secondary information" (Entities row) rather than Tile's "State
+  // content": this card's state is the whole grid, not one value.
   private _computeLabel = (schema: { name: string }): string => {
     if (schema.name === "state_content") {
       return this.hass!.localize("ui.panel.lovelace.editor.card.entity-row.secondary_info");

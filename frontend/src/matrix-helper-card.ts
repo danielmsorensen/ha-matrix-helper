@@ -16,24 +16,15 @@ import "./matrix-helper-card-editor";
 import { defineOnce } from "./define-once";
 import { cellKey, resolveCellEdit } from "./cell-edit";
 
-// hass.formatEntityName() is the real function every built-in card uses to
-// interpret a "name" config value written by the entity_name selector
-// (Composed mode stores a name-part recipe, not a plain string -- rendering
-// it directly, as this card did before, produces "[object Object]"). It's
-// not declared on the installed custom-card-helpers@2.0.0's HomeAssistant
-// type (that type predates it), but it exists at runtime in the actual app
-// -- confirmed directly against hui-tile-card.ts's own
-// `this.hass.formatEntityName(stateObj, this._config.name)` call, on the
-// same frontend version this project's dev instance runs.
+// formatEntityName() resolves the entity_name selector's value (a name-part
+// recipe in Composed mode, not a plain string). Missing from
+// custom-card-helpers' HomeAssistant type.
 interface HomeAssistantWithFormatters extends HomeAssistant {
   formatEntityName: (stateObj: MatrixHelperStateObj, name: unknown) => string;
 }
 
-// Not declared on custom-card-helpers@2.0.0's LovelaceCard (that type predates
-// getGridOptions too) -- shape confirmed against the real
-// src/panels/lovelace/types.ts. Returning this from getGridOptions() opts the
-// card into the sections view's per-card "Rows" control; without it, sections
-// view ignores rows entirely and the card is always sized to its content.
+// Missing from custom-card-helpers. Returning this from getGridOptions() opts
+// into the sections view's "Rows" control; otherwise the card sizes to content.
 interface LovelaceGridOptions {
   columns?: number | "full";
   rows?: number | "auto";
@@ -43,14 +34,9 @@ interface LovelaceGridOptions {
   max_rows?: number;
 }
 
-// The ui_color selector's value is a theme colour *name* (e.g. "red",
-// "deep-purple"), or the sentinels "state"/"none" (its includeState/
-// includeNone options) -- not a CSS colour string. This is
-// computeCssColor()/THEME_COLORS from
-// common/color/compute-color.ts, faithfully copied since neither is
-// exported by any package (confirmed against custom-card-helpers' real
-// exports); rendering the raw value directly, as this card did before,
-// left every theme colour a silent no-op.
+// ui_color values are theme colour names (e.g. "deep-purple") or "state"/
+// "none", not CSS colours. Copied from HA's common/color/compute-color.ts
+// (not exported by any package).
 const THEME_COLORS = new Set([
   "primary",
   "accent",
@@ -83,16 +69,9 @@ function computeCssColor(color: string): string {
   return THEME_COLORS.has(color) ? `var(--${color}-color)` : color;
 }
 
-// Mirrors state-badge.ts's real per-entity icon-color logic (the
-// component every generic entity-row/card actually renders through),
-// simplified for this card: "state" would normally resolve via
-// stateColorCss(), a per-domain default (e.g. a lit bulb's own color) --
-// matrix_helper isn't one of the domains stateColorCss() has a rule for,
-// so it always resolves to no override anyway, same as "none". The
-// stateActive() gate on custom colors is also omitted: this entity's
-// state is never "off"/"unavailable" here (that's already handled
-// earlier in render()) and matrix_helper isn't one of stateActive()'s
-// special-cased domains either, so it's unconditionally true for us.
+// Simplified state-badge.ts icon-color logic: stateColorCss() has no rule for
+// matrix_helper, so "state" means no override, like "none"; stateActive() is
+// always true here (unavailable is handled earlier in render()).
 function computeIconColor(color: string | undefined): string | undefined {
   if (!color || color === "state" || color === "none") {
     return undefined;

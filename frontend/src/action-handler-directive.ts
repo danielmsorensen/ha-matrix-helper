@@ -2,25 +2,11 @@
 // hold/double-tap gesture detection, dispatching a native "action" custom
 // event with detail: { action: "tap" | "hold" | "double_tap" }.
 //
-// custom-card-helpers publishes the handleAction/hasAction functions and
-// the ActionHandlerOptions/ActionHandlerEvent types, but not this directive
-// itself -- confirmed directly against the package's actual exports, which
-// do not include it. Vendoring a local copy is the standard way essentially
-// every real custom card handles this (there is no supported alternative).
-//
-// This version is a faithful adaptation of Home Assistant's own current,
-// real implementation
-// (src/panels/lovelace/common/directives/action-handler-directive.ts, the
-// exact file hui-tile-card.ts's own action handling uses) rather than the
-// older community reference (custom-cards/boilerplate-card) this file was
-// originally adapted from -- that older reference turned out to diverge in
-// a way that broke plain single-tap specifically once hasDoubleClick was
-// enabled (hold and double-tap both worked; only the delayed single-tap
-// path was affected). Trimmed here: the container/gesture-resolver
-// mechanism (options.resolve/keyboardOnly), which only matters for binding
-// one handler across multiple dynamically-resolved targets -- this card
-// only ever binds a single fixed element -- and hasTap/disabled, which
-// this card never sets.
+// custom-card-helpers doesn't export this directive, so it's adapted from
+// HA's src/panels/lovelace/common/directives/action-handler-directive.ts
+// (boilerplate-card's version breaks single tap with hasDoubleClick).
+// Omitted: options.resolve/keyboardOnly (one fixed element here) and
+// hasTap/disabled (never set by this card).
 import { ActionHandlerOptions, deepEqual, fireEvent } from "custom-card-helpers";
 import { directive, Directive, ElementPart, PartInfo } from "lit/directive.js";
 import { defineOnce } from "./define-once";
