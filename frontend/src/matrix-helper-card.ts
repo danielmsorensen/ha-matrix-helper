@@ -10,7 +10,6 @@ import {
 } from "custom-card-helpers";
 import type { MatrixHelperCardConfig, MatrixHelperStateObj } from "./types";
 import { DOMAIN, eventValue } from "./types";
-import { deslugify } from "./deslugify";
 import { actionHandler } from "./action-handler-directive";
 import { ensureHaFormComponentsLoaded } from "./ha-components-loader";
 import "./matrix-helper-card-editor";
@@ -26,7 +25,7 @@ import { defineOnce } from "./define-once";
 // `this.hass.formatEntityName(stateObj, this._config.name)` call, on the
 // same frontend version this project's dev instance runs.
 interface HomeAssistantWithFormatters extends HomeAssistant {
-  formatEntityName: (stateObj: MatrixHelperStateObj, name: unknown) => string | undefined;
+  formatEntityName: (stateObj: MatrixHelperStateObj, name: unknown) => string;
 }
 
 // Not declared on custom-card-helpers@2.0.0's LovelaceCard (that type predates
@@ -337,18 +336,30 @@ export class MatrixHelperCard extends LitElement {
       </ha-card>`;
     }
 
-    const { rows, columns, data, row_labels, column_labels } = stateObj.attributes;
-    if (stateObj.state === "unavailable" || !rows || !columns || !data) {
+    const {
+      rows,
+      columns,
+      data,
+      row_labels: rowNames,
+      column_labels: columnNames,
+    } = stateObj.attributes;
+    if (
+      stateObj.state === "unavailable" ||
+      !rows ||
+      !columns ||
+      !data ||
+      !rowNames ||
+      !columnNames
+    ) {
       return html`<ha-card>
         <div style="padding: 16px;">Entity ${this.config.entity} is unavailable.</div>
       </ha-card>`;
     }
-    const title =
-      (this.hass as HomeAssistantWithFormatters).formatEntityName?.(stateObj, this.config.name) ??
-      stateObj.attributes.friendly_name;
+    const title = (this.hass as HomeAssistantWithFormatters).formatEntityName(
+      stateObj,
+      this.config.name
+    );
     const iconColor = computeIconColor(this.config.color);
-    const rowNames = rows.map((row, i) => row_labels?.[i] ?? deslugify(row));
-    const columnNames = columns.map((column, i) => column_labels?.[i] ?? deslugify(column));
 
     // tap defaults to "more-info" when unset, so an unset tap_action still
     // counts as "has an action"; hold/double-tap have no default action, so

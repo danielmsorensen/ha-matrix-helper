@@ -5,10 +5,9 @@ export const DOMAIN = "matrix_helper";
 export interface MatrixHelperStateObj {
   state: string;
   attributes: {
-    friendly_name?: string;
     rows?: string[];
     columns?: string[];
-    // The labels as originally typed, parallel to rows/columns (1.1.0+).
+    // The labels as originally typed, parallel to rows/columns.
     row_labels?: string[];
     column_labels?: string[];
     data?: Record<string, Record<string, number | null>>;
@@ -18,11 +17,7 @@ export interface MatrixHelperStateObj {
 
 export interface MatrixHelperCardConfig extends LovelaceCardConfig {
   entity: string;
-  // Opaque: the entity_name selector's value isn't a plain string (its
-  // "Composed" mode stores a name-part recipe) -- hass.formatEntityName()
-  // is the real function that interprets whatever shape this is, the same
-  // way every built-in card using this selector does. See
-  // matrix-helper-card.ts's HomeAssistantWithFormatters cast.
+  // entity_name selector value (string or name-part recipe); passed to hass.formatEntityName().
   name?: unknown;
   icon?: string;
   color?: string;

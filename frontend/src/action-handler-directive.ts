@@ -20,9 +20,8 @@
 // mechanism (options.resolve/keyboardOnly), which only matters for binding
 // one handler across multiple dynamically-resolved targets -- this card
 // only ever binds a single fixed element -- and hasTap/disabled, which
-// aren't in the installed custom-card-helpers package's simpler
-// ActionHandlerOptions type ({hasHold?, hasDoubleClick?} only).
-import { ActionHandlerOptions, fireEvent } from "custom-card-helpers";
+// this card never sets.
+import { ActionHandlerOptions, deepEqual, fireEvent } from "custom-card-helpers";
 import { directive, Directive, ElementPart, PartInfo } from "lit/directive.js";
 import { defineOnce } from "./define-once";
 
@@ -35,14 +34,6 @@ interface ActionHandlerElement extends HTMLElement {
     end?: (ev: Event) => void;
     handleKeyDown?: (ev: KeyboardEvent) => void;
   };
-}
-
-// deepEqual isn't exported by the installed custom-card-helpers package
-// (confirmed against its actual exports) -- the installed
-// ActionHandlerOptions type only has these two boolean fields, so a plain
-// comparison is equivalent to a generic deep-equal here.
-function optionsEqual(a?: ActionHandlerOptions, b?: ActionHandlerOptions): boolean {
-  return !!a?.hasHold === !!b?.hasHold && !!a?.hasDoubleClick === !!b?.hasDoubleClick;
 }
 
 const DOUBLE_CLICK_TIME = 250;
@@ -96,7 +87,7 @@ class ActionHandler extends HTMLElement {
   }
 
   public bind(element: ActionHandlerElement, options: ActionHandlerOptions = {}): void {
-    if (element.actionHandler && optionsEqual(options, element.actionHandler.options)) {
+    if (element.actionHandler && deepEqual(options, element.actionHandler.options)) {
       return;
     }
 
