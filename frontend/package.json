@@ -5,7 +5,8 @@
   "scripts": {
     "build": "tsc --noEmit && esbuild src/matrix-helper-card.ts --bundle --minify --format=esm --outfile=../custom_components/matrix_helper/www/matrix-helper-card.js",
     "watch": "esbuild src/matrix-helper-card.ts --bundle --minify --format=esm --outfile=../custom_components/matrix_helper/www/matrix-helper-card.js --watch",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "vitest run"
   },
   "dependencies": {
     "custom-card-helpers": "^2.0.0",
@@ -15,6 +16,7 @@
     "esbuild": "^0.28.2",
     "eslint": "^10.14.0",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.72.1"
+    "typescript-eslint": "^8.72.1",
+    "vitest": "^4.1.12"
   }
 }

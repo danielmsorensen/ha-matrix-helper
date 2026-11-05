@@ -14,6 +14,7 @@ import { actionHandler } from "./action-handler-directive";
 import { ensureHaFormComponentsLoaded } from "./ha-components-loader";
 import "./matrix-helper-card-editor";
 import { defineOnce } from "./define-once";
+import { cellKey, resolveCellEdit } from "./cell-edit";
 
 // hass.formatEntityName() is the real function every built-in card uses to
 // interpret a "name" config value written by the entity_name selector
@@ -454,10 +455,10 @@ export class MatrixHelperCard extends LitElement {
     column: string,
     label: string
   ) {
-    const cellKey = `${row}:${column}`;
+    const key = cellKey(row, column);
     const committedValue = data[row]?.[column] ?? null;
-    const displayValue = this._drafts.has(cellKey)
-      ? this._drafts.get(cellKey)!
+    const displayValue = this._drafts.has(key)
+      ? this._drafts.get(key)!
       : committedValue === null
         ? ""
         : String(committedValue);
@@ -470,7 +471,7 @@ export class MatrixHelperCard extends LitElement {
         aria-label=${label}
         .value=${displayValue}
         @input=${(ev: Event) => {
-          this._drafts.set(cellKey, eventValue(ev));
+          this._drafts.set(key, eventValue(ev));
           this.requestUpdate();
         }}
         @mousedown=${this._isolateCell}
@@ -483,7 +484,7 @@ export class MatrixHelperCard extends LitElement {
           if (ev.key === "Escape") {
             // Discard the edit; with no draft left, the blur's "change"
             // below is a no-op.
-            this._drafts.delete(cellKey);
+            this._drafts.delete(key);
             this.requestUpdate();
           }
           if (ev.key === "Enter" || ev.key === "Escape") {
@@ -595,9 +596,8 @@ export class MatrixHelperCard extends LitElement {
     column: string,
     previousValue: number | null
   ): Promise<void> {
-    const cellKey = `${row}:${column}`;
-    const hadDraft = this._drafts.has(cellKey);
-    const raw = (this._drafts.get(cellKey) ?? "").trim();
+    const key = cellKey(row, column);
+    const hadDraft = this._drafts.has(key);
 
     // If there was no @input event for this cell, this "change" wasn't a
     // real edit -- e.g. a re-render replaying the same value. Don't call
@@ -608,29 +608,23 @@ export class MatrixHelperCard extends LitElement {
       return;
     }
 
-    let newValue: number | null;
-    if (raw === "") {
-      newValue = null;
-    } else {
-      // Accept a decimal comma too ("21,5"), as typed in many locales.
-      const parsed = Number(raw.replace(",", "."));
-      if (!Number.isFinite(parsed)) {
-        this._error = `"${raw}" is not a number.`;
-        this._drafts.delete(cellKey);
-        this.requestUpdate();
-        return;
-      }
-      newValue = parsed;
-    }
-
-    if (newValue === previousValue) {
-      this._drafts.delete(cellKey);
+    const edit = resolveCellEdit(this._drafts.get(key) ?? "", previousValue);
+    if (edit.kind === "invalid") {
+      this._error = `"${edit.input}" is not a number.`;
+      this._drafts.delete(key);
       this.requestUpdate();
       return;
     }
 
+    if (edit.kind === "noop") {
+      this._drafts.delete(key);
+      this.requestUpdate();
+      return;
+    }
+    const newValue = edit.value;
+
     if (!this.hass || !this.config) {
-      this._drafts.delete(cellKey);
+      this._drafts.delete(key);
       return;
     }
 
@@ -649,7 +643,7 @@ export class MatrixHelperCard extends LitElement {
     } catch (err) {
       this._error = err instanceof Error ? err.message : String(err);
     } finally {
-      this._drafts.delete(cellKey);
+      this._drafts.delete(key);
       this.requestUpdate();
     }
   }
