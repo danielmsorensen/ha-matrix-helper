@@ -104,6 +104,49 @@ async def test_yaml_mode_loads_card_on_every_page(hass, matrix_config_entry):
     assert CARD_URL in hass.data[DATA_EXTRA_MODULE_URL].urls
 
 
+async def test_yaml_mode_card_is_removed_with_the_last_matrix(
+    hass, matrix_config_entry
+):
+    assert await async_setup_component(
+        hass, "lovelace", {"lovelace": {"resource_mode": "yaml"}}
+    )
+    assert await async_setup_component(hass, "frontend", {})
+    await _setup(hass, matrix_config_entry)
+
+    await hass.config_entries.async_remove(matrix_config_entry.entry_id)
+
+    assert CARD_URL not in hass.data[DATA_EXTRA_MODULE_URL].urls
+
+
+async def test_yaml_mode_without_frontend_adds_nothing(hass, matrix_config_entry):
+    assert await async_setup_component(
+        hass, "lovelace", {"lovelace": {"resource_mode": "yaml"}}
+    )
+
+    await _setup(hass, matrix_config_entry)
+    await hass.config_entries.async_remove(matrix_config_entry.entry_id)
+
+    assert DATA_EXTRA_MODULE_URL not in hass.data
+
+
+@pytest.mark.usefixtures("lovelace")
+async def test_current_resource_is_left_alone(hass, matrix_config_entry):
+    # As after a restart: the resource stored last run already has this URL.
+    resources = hass.data[LOVELACE_DATA].resources
+    await resources.async_create_item({"res_type": "module", "url": CARD_URL})
+    changes = []
+
+    async def _record(*change) -> None:
+        changes.append(change)
+
+    resources.async_add_listener(_record)
+
+    await _setup(hass, matrix_config_entry)
+
+    assert await _resource_urls(hass) == [CARD_URL]
+    assert changes == []
+
+
 @pytest.mark.usefixtures("lovelace")
 async def test_resource_follows_the_last_matrix(hass, matrix_config_entry):
     second = _second_entry()
