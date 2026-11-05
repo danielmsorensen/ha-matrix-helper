@@ -20,8 +20,6 @@ integration is installed.
 
 Requires Home Assistant 2026.11 or later.
 
-Matrices created with 1.0.x don't load on 1.1.0 or later: delete and recreate them.
-
 ### Marketplace (recommended)
 
 [![Open your Home Assistant instance and open this repository in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=danielmsorensen&repository=ha-matrix-helper&category=integration)
