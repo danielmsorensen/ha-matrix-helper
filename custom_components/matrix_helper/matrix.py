@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 
 from homeassistant.const import CONF_NAME
 from homeassistant.exceptions import ServiceValidationError
-from homeassistant.helpers.restore_state import RestoreEntity
+from homeassistant.helpers.entity import Entity
 from homeassistant.util import dt as dt_util
 from homeassistant.util import slugify
 
@@ -31,21 +31,20 @@ type MatrixData = dict[str, dict[str, float | None]]
 type Cell = tuple[str, str]
 
 
-def _restored_value(value: Any) -> float | None:
+def _stored_value(value: Any) -> float | None:
     """Return a stored cell value, or None if it isn't a usable number."""
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         return None
     return float(value) if math.isfinite(value) else None
 
 
-class MatrixHelperEntity(RestoreEntity):
+class MatrixHelperEntity(Entity):
     """
     A single rows x columns matrix of float-or-null cells.
 
     Row/column keys are the slugs of their labels; every service accepts
     either form. Data is persisted in its own Store so edits survive a
-    crash, not just a clean shutdown. RestoreEntity is kept only to migrate
-    data from 1.0.x, which stored it solely in the restore state.
+    crash, not just a clean shutdown.
     """
 
     _attr_should_poll = False
@@ -203,15 +202,10 @@ class MatrixHelperEntity(RestoreEntity):
 
     async def async_added_to_hass(self) -> None:
         """Load stored data, reconciled against the current rows/columns."""
-        await super().async_added_to_hass()
-        if (stored := await self._store.async_load()) is not None:
-            old_data = stored.get("data")
-            last_modified = stored.get("last_modified")
-        elif (last_state := await self.async_get_last_state()) is not None:
-            old_data = last_state.attributes.get(ATTR_DATA)
-            last_modified = last_state.state
-        else:
+        if (stored := await self._store.async_load()) is None:
             return
+        old_data = stored.get("data")
+        last_modified = stored.get("last_modified")
 
         if not isinstance(old_data, dict):
             old_data = {}
@@ -219,13 +213,12 @@ class MatrixHelperEntity(RestoreEntity):
             old_row = old_data.get(row)
             if isinstance(old_row, dict):
                 for column in self.columns:
-                    self._data[row][column] = _restored_value(old_row.get(column))
+                    self._data[row][column] = _stored_value(old_row.get(column))
         if isinstance(last_modified, str):
             self._last_modified = last_modified
-        # Persist the reconciled (or migrated) data straight away.
+        # Persist the reconciled data straight away.
         self._store.async_delay_save(self._storage_data, STORAGE_SAVE_DELAY)
 
     async def async_will_remove_from_hass(self) -> None:
         """Flush any pending write before the entity goes away (e.g. on reload)."""
-        await super().async_will_remove_from_hass()
         await self._store.async_save(self._storage_data())

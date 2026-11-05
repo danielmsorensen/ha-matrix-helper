@@ -6,12 +6,8 @@ from datetime import timedelta
 from typing import Any
 
 import pytest
-from homeassistant.core import State
 from homeassistant.util import dt as dt_util
-from pytest_homeassistant.common import (
-    async_fire_time_changed,
-    mock_restore_cache,
-)
+from pytest_homeassistant.common import async_fire_time_changed
 from pytest_homeassistant.components.diagnostics import (
     get_diagnostics_for_config_entry,
 )
@@ -69,24 +65,6 @@ async def test_stored_data_loaded_and_reconciled(
         "eco": {"living_room": None, "office": None},
         "sleep": {"living_room": None, "office": None},
     }
-
-
-async def test_storage_takes_precedence_over_restore_state(
-    hass, matrix_config_entry, hass_storage: dict[str, Any]
-):
-    mock_restore_cache(
-        hass, [State(ENTITY_ID, "2026-01-01T00:00:00+00:00", {"data": {}})]
-    )
-    hass_storage[STORAGE_KEY] = {
-        "version": 1,
-        "key": STORAGE_KEY,
-        "data": {"data": {"comfort": {"office": 19.0}}, "last_modified": "x"},
-    }
-    matrix_config_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(matrix_config_entry.entry_id)
-    await hass.async_block_till_done()
-
-    assert hass.states.get(ENTITY_ID).attributes["data"]["comfort"]["office"] == 19.0
 
 
 async def test_data_survives_options_reload(hass, loaded_entry):
