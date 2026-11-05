@@ -15,15 +15,12 @@ from typing import TYPE_CHECKING, Any
 from homeassistant.components.frontend import add_extra_js_url, remove_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.components.lovelace.const import LOVELACE_DATA, MODE_STORAGE
-from homeassistant.helpers import issue_registry as ir
 from homeassistant.util.hass_dict import HassKey
 
 from .const import (
     CARD_FILENAME,
     CARD_URL_BASE,
     DOMAIN,
-    ISSUE_LEGACY_CARD,
-    LEGACY_CARD_URL_MARKERS,
     LOGGER,
 )
 
@@ -76,9 +73,8 @@ async def async_register_card(hass: HomeAssistant) -> None:
         )
         hass.data[DATA_CARD_SERVED] = True
 
-    items = await _resource_items(hass)
     if (resources := _storage_resources(hass)) is not None:
-        ours = [item for item in items if _is_card(item["url"])]
+        ours = [item for item in await _resource_items(hass) if _is_card(item["url"])]
         if not ours:
             await resources.async_create_item({"res_type": "module", "url": url})
             LOGGER.info("Registered the Matrix Helper Card dashboard resource")
@@ -93,34 +89,11 @@ async def async_register_card(hass: HomeAssistant) -> None:
         # YAML-mode resources can't be edited; load the card on every page.
         add_extra_js_url(hass, url)
 
-    # The standalone card of earlier versions is now redundant (and loads a
-    # second copy), so ask for it to be removed.
-    if legacy := next(
-        (
-            item
-            for item in items
-            if any(marker in item["url"] for marker in LEGACY_CARD_URL_MARKERS)
-        ),
-        None,
-    ):
-        ir.async_create_issue(
-            hass,
-            DOMAIN,
-            ISSUE_LEGACY_CARD,
-            is_fixable=False,
-            severity=ir.IssueSeverity.WARNING,
-            translation_key=ISSUE_LEGACY_CARD,
-            translation_placeholders={"url": legacy["url"]},
-        )
-    else:
-        ir.async_delete_issue(hass, DOMAIN, ISSUE_LEGACY_CARD)
-
 
 async def async_unregister_card(hass: HomeAssistant) -> None:
     """Remove the card's dashboard resource (the static path stays until restart)."""
     if (url := hass.data.pop(DATA_CARD_URL, None)) is None:
         return
-    ir.async_delete_issue(hass, DOMAIN, ISSUE_LEGACY_CARD)
     if (resources := _storage_resources(hass)) is None:
         if "frontend" in hass.config.components:
             remove_extra_js_url(hass, url)

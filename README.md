@@ -80,11 +80,6 @@ entity: matrix_helper.climate_profiles
 
 ![The card's visual editor, with Content and Interactions sections beside a live preview](https://raw.githubusercontent.com/danielmsorensen/ha-matrix-helper/main/docs/images/card-editor.png)
 
-**Upgrading from the separate Matrix Helper Card?** The card used to be its own
-download. It's now built in, so uninstall the old one: Settings → **Marketplace** →
-**Matrix Helper Card** → ⋮ → **Uninstall**. Home Assistant shows a repair notice
-until you do. Your existing cards keep working without changes.
-
 ## The entity
 
 The entity's **state** is the time the matrix was last changed, so a state trigger

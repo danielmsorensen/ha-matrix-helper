@@ -9,7 +9,6 @@ import pytest
 from homeassistant.components.frontend import DATA_EXTRA_MODULE_URL
 from homeassistant.components.lovelace.const import LOVELACE_DATA
 from homeassistant.const import CONF_NAME
-from homeassistant.helpers import issue_registry as ir
 from homeassistant.setup import async_setup_component
 from pytest_homeassistant.common import MockConfigEntry
 
@@ -17,17 +16,11 @@ from custom_components.matrix_helper.const import (
     CONF_COLUMNS,
     CONF_ROWS,
     DOMAIN,
-    ISSUE_LEGACY_CARD,
 )
 
 BUNDLE = Path("custom_components/matrix_helper/www/matrix-helper-card.js").read_bytes()
 CARD_PATH = "/matrix_helper/matrix-helper-card.js"
 CARD_URL = f"{CARD_PATH}?v={hashlib.sha256(BUNDLE).hexdigest()[:12]}"
-# The standalone card, as HACS registered it and as the Marketplace migrates it.
-LEGACY_URLS = [
-    "/hacsfiles/ha-matrix-helper-card/matrix-helper-card.js?hacstag=1",
-    "/local/community/ha-matrix-helper-card/matrix-helper-card.js?v=1",
-]
 
 
 async def _setup(hass, entry: MockConfigEntry) -> None:
@@ -109,29 +102,6 @@ async def test_yaml_mode_loads_card_on_every_page(hass, matrix_config_entry):
     await _setup(hass, matrix_config_entry)
 
     assert CARD_URL in hass.data[DATA_EXTRA_MODULE_URL].urls
-
-
-@pytest.mark.usefixtures("lovelace")
-@pytest.mark.parametrize("legacy_url", LEGACY_URLS)
-async def test_standalone_card_raises_repair_issue(
-    hass, matrix_config_entry, legacy_url
-):
-    await hass.data[LOVELACE_DATA].resources.async_create_item(
-        {"res_type": "module", "url": legacy_url}
-    )
-
-    await _setup(hass, matrix_config_entry)
-
-    issue = ir.async_get(hass).async_get_issue(DOMAIN, ISSUE_LEGACY_CARD)
-    assert issue is not None
-    assert issue.translation_placeholders == {"url": legacy_url}
-
-
-@pytest.mark.usefixtures("lovelace")
-async def test_no_repair_issue_without_standalone_card(hass, matrix_config_entry):
-    await _setup(hass, matrix_config_entry)
-
-    assert ir.async_get(hass).async_get_issue(DOMAIN, ISSUE_LEGACY_CARD) is None
 
 
 @pytest.mark.usefixtures("lovelace")
