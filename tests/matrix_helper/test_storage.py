@@ -26,6 +26,20 @@ async def _set_office(hass, value: float) -> None:
     )
 
 
+@pytest.fixture
+def load_stored(hass, matrix_config_entry, hass_storage: dict[str, Any]):
+    """Set up the matrix from the given stored data; return its state."""
+
+    async def load(stored: dict[str, Any]):
+        hass_storage[STORAGE_KEY] = {"version": 1, "key": STORAGE_KEY, "data": stored}
+        matrix_config_entry.add_to_hass(hass)
+        assert await hass.config_entries.async_setup(matrix_config_entry.entry_id)
+        await hass.async_block_till_done()
+        return hass.states.get(ENTITY_ID)
+
+    return load
+
+
 @pytest.mark.usefixtures("loaded_entry")
 async def test_edits_are_saved_to_storage(hass, hass_storage: dict[str, Any]):
     await _set_office(hass, 20)
@@ -37,26 +51,18 @@ async def test_edits_are_saved_to_storage(hass, hass_storage: dict[str, Any]):
     assert saved["last_modified"] == hass.states.get(ENTITY_ID).state
 
 
-async def test_stored_data_loaded_and_reconciled(
-    hass, matrix_config_entry, hass_storage: dict[str, Any]
-):
-    hass_storage[STORAGE_KEY] = {
-        "version": 1,
-        "key": STORAGE_KEY,
-        "data": {
+async def test_stored_data_loaded_and_reconciled(load_stored):
+    state = await load_stored(
+        {
             "data": {
                 "comfort": {"office": 19.0, "retired_column": 1.0},
                 "retired_row": {"office": 5.0},
                 "eco": {"office": "not a number", "living_room": float("nan")},
             },
             "last_modified": "2026-02-02T00:00:00+00:00",
-        },
-    }
-    matrix_config_entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(matrix_config_entry.entry_id)
-    await hass.async_block_till_done()
+        }
+    )
 
-    state = hass.states.get(ENTITY_ID)
     assert state.state == "2026-02-02T00:00:00+00:00"
     assert state.attributes["data"] == {
         "comfort": {"living_room": None, "office": 19.0},
@@ -114,23 +120,10 @@ async def test_matrix_attributes_are_excluded_from_recorder(hass):
     assert {"data", "rows", "columns", "row_labels", "column_labels"} <= unrecorded
 
 
-async def _load_stored(hass, entry, stored: dict[str, Any], hass_storage):
-    hass_storage[STORAGE_KEY] = {"version": 1, "key": STORAGE_KEY, "data": stored}
-    entry.add_to_hass(hass)
-    assert await hass.config_entries.async_setup(entry.entry_id)
-    await hass.async_block_till_done()
-    return hass.states.get(ENTITY_ID)
-
-
-async def test_stored_booleans_are_not_loaded_as_numbers(
-    hass, matrix_config_entry, hass_storage: dict[str, Any]
-):
+async def test_stored_booleans_are_not_loaded_as_numbers(load_stored):
     # bool is an int subclass, so True/False would otherwise load as 1.0/0.0.
-    state = await _load_stored(
-        hass,
-        matrix_config_entry,
-        {"data": {"comfort": {"office": True, "living_room": False}}},
-        hass_storage,
+    state = await load_stored(
+        {"data": {"comfort": {"office": True, "living_room": False}}}
     )
 
     assert state.attributes["data"]["comfort"] == {
@@ -139,14 +132,9 @@ async def test_stored_booleans_are_not_loaded_as_numbers(
     }
 
 
-async def test_stored_non_dict_data_loads_as_empty_matrix(
-    hass, matrix_config_entry, hass_storage: dict[str, Any]
-):
-    state = await _load_stored(
-        hass,
-        matrix_config_entry,
-        {"data": ["not", "a", "dict"], "last_modified": "2026-02-02T00:00:00+00:00"},
-        hass_storage,
+async def test_stored_non_dict_data_loads_as_empty_matrix(load_stored):
+    state = await load_stored(
+        {"data": ["not", "a", "dict"], "last_modified": "2026-02-02T00:00:00+00:00"}
     )
 
     assert state.state == "2026-02-02T00:00:00+00:00"
