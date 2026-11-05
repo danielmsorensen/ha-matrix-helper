@@ -221,6 +221,7 @@ sequence:
   `custom_components/matrix_helper/www/`
 - `scripts/watch-card` — rebuild the card on every save
 - `pytest` — run the test suite
+- `cd frontend && npm test` — run the card's unit tests
 
 The test suite and `scripts/develop` need a POSIX environment (Home Assistant core has
 POSIX-only dependencies) — on Windows, use WSL2.
