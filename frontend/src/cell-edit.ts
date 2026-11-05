@@ -1,5 +1,4 @@
-// Pure logic of the card's cell edit cycle, kept apart from the element so
-// it can be unit tested.
+// Cell edit cycle logic: parsing and set/clear/no-op decisions.
 
 /** What committing a cell's typed input should do. */
 export type CellEdit =

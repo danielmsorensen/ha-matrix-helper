@@ -318,16 +318,16 @@ export class MatrixHelperCard extends LitElement {
       rows,
       columns,
       data,
-      row_labels: rowNames,
-      column_labels: columnNames,
+      row_labels: rowLabels,
+      column_labels: columnLabels,
     } = stateObj.attributes;
     if (
       stateObj.state === "unavailable" ||
       !rows ||
       !columns ||
       !data ||
-      !rowNames ||
-      !columnNames
+      !rowLabels ||
+      !columnLabels
     ) {
       return html`<ha-card>
         <div style="padding: 16px;">Entity ${this.config.entity} is unavailable.</div>
@@ -396,12 +396,12 @@ export class MatrixHelperCard extends LitElement {
               <div class="corner"></div>
               <div class="column-labels" @wheel=${this._forwardWheel}>
                 <div class="column-track">
-                  ${columnNames.map((name) => html`<div class="label">${name}</div>`)}
+                  ${columnLabels.map((name) => html`<div class="label">${name}</div>`)}
                 </div>
               </div>
               <div class="row-labels" @wheel=${this._forwardWheel}>
                 <div class="row-track">
-                  ${rowNames.map((name) => html`<div class="label">${name}</div>`)}
+                  ${rowLabels.map((name) => html`<div class="label">${name}</div>`)}
                 </div>
               </div>
               <div
@@ -414,7 +414,7 @@ export class MatrixHelperCard extends LitElement {
                 <div class="body-track">
                   ${rows.map((row, i) =>
                     columns.map((column, j) =>
-                      this._renderCell(data, row, column, `${rowNames[i]}, ${columnNames[j]}`)
+                      this._renderCell(data, row, column, `${rowLabels[i]}, ${columnLabels[j]}`)
                     )
                   )}
                 </div>
@@ -576,10 +576,8 @@ export class MatrixHelperCard extends LitElement {
     const key = cellKey(row, column);
     const hadDraft = this._drafts.has(key);
 
-    // If there was no @input event for this cell, this "change" wasn't a
-    // real edit -- e.g. a re-render replaying the same value. Don't call
-    // the service, don't touch _error, and don't delete the draft yet
-    // (it's already gone anyway).
+    // No @input since the last commit (e.g. a re-render replaying the
+    // value): not a real edit, so leave the service and _error alone.
     if (!hadDraft) {
       this.requestUpdate();
       return;
